@@ -14,11 +14,16 @@ These methods allows dapps to interact with wallet services in order to authenti
 ## Methods
 ## `fcl.authenticate(opts)`
 Used to authenticate the current user given a set of options. Once called, FCL will open an iFrame to display options to the user.
+
 :warning: The `challenge.handshake` value **must** be set in the configuration. See [FCL Configuration](#Methods)
+
 :loudspeaker: Should only be used if using a different set of authentication options than the default. Use `fcl.login()` or `fcl.signup` instead.
 #### Arguments
 -  `(optional) opts: { serviceStrategy: SERVICE_STRATEGY_TYPE }`
-	- `(default) { serviceStrategy: FRAME_TYPE }`
+- `(default) { serviceStrategy: FRAME_TYPE }`
+
+See [Types#ServiceStrategy](#Types)
+
 #### Usage
 ```javascript
 fcl.authenticate({})
@@ -33,3 +38,4 @@ fcl.authenticate({})
 
 
 # Types
+
