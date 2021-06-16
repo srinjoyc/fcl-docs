@@ -10,12 +10,12 @@
 
 These methods allows dapps to interact with wallet services in order to authenticate the user and authorize transactions on their behalf.
 
-
 ## Methods
 
 ---
 
 ## `fcl.authenticate()`
+
 > :warning: **This method can only be used client side.**
 
 Used to authenticate the current user via any wallet that supports FCL. Once called, FCL will initiate communication with the configured `challenge.handshake` endpoint or default to the `discovery.wallet` endpoint which lets the user select a supported custodial wallet ([see supported wallets](#Wallets)).
@@ -41,6 +41,7 @@ fcl.authenticate();
 ---
 
 ## `fcl.unauthenticate()`
+
 > :warning: **This method can only be used client side.**
 
 Logs out the current user.
@@ -66,6 +67,7 @@ fcl.unauthenticate();
 ---
 
 ## `fcl.reauthenticate()`
+
 > :warning: **This method can only be used client side.**
 
 A **convenience method** that calls `fcl.unauthenticate()` and then `fcl.authenticate()` for the current user.
@@ -92,9 +94,10 @@ fcl.reauthenticate();
 ---
 
 ## `fcl.signUp()`
+
 > :warning: **This method can only be used client side.**
 
-A **convenience method** that calls [`fcl.authenticate()`](##`fcl.authenticate()`)
+A **convenience method** that calls [`fcl.authenticate()`](<##`fcl.authenticate()`>)
 
 ### Note
 
@@ -115,9 +118,10 @@ fcl.signUp();
 ---
 
 ## `fcl.login()`
+
 > :warning: **This method can only be used client side.**
 
-A **convenience method** that calls [`fcl.authenticate()`](##`fcl.authenticate()`).
+A **convenience method** that calls [`fcl.authenticate()`](<##`fcl.authenticate()`>).
 
 ### Usage
 
@@ -157,7 +161,7 @@ const response = fcl.send([
     fcl.arg(Number(itemID), t.UInt64),
     fcl.arg(String(price), t.UFix64),
   ]),
-  fcl.proposer(fcl.authz), // use as a alias when authorizing transactions
+  fcl.proposer(fcl.authz), // use as a alias when authorizing transactions for the current user
   fcl.payer(fcl.authz),
   fcl.authorizations([fcl.authz]),
   fcl.limit(1000),
@@ -172,11 +176,11 @@ const response = fcl.send([
 
 # On-chain Interactions
 
-These methods allows dapps to interact directly with the Flow blockchain via a set of functions that currently use the [Access Node API](https://docs.onflow.org/access-api/) along with utilities to make it easier to send and decode responses. This set of functionality is similar to what is offered in other [SDKs](https://docs.onflow.org/sdks/) but allows for greater composability and customizability. 
-
-**In general, all interactions need to be built and sent to the chain via `fcl.send()` and then decoded via `fcl.decode()`.** 
-
 > :loudspeaker: **These methods can be used both on the client and server.**
+
+These methods allows dapps to interact directly with the Flow blockchain via a set of functions that currently use the [Access Node API](https://docs.onflow.org/access-api/) along with utilities to make it easier to send and decode responses. This set of functionality is similar to what is offered in other [SDKs](https://docs.onflow.org/sdks/) but allows for greater composability and customizability.
+
+**In general, all interactions need to be built and sent to the chain via `fcl.send()` and then decoded via `fcl.decode()`.**
 
 ## Methods
 
@@ -186,24 +190,23 @@ These methods allows dapps to interact directly with the Flow blockchain via a s
 
 Sends arbitrary scripts, transactions, and requests to the blockchain.
 
-It consumes an array of [builders](https://google.ca) that are to be resolved and sent. The builders required to be included in the array depend on the [Interaction](##`Interactions`) that is being built.
+It consumes an array of [builders](https://google.ca) that are to be resolved and sent. The builders required to be included in the array depend on the [interaction](##`Interactions`) that is being built.
 
 ### Note
 
-:warning: Must be used in conjuction with [`fcl.decode(response)`](##`fcl.decode(response)`) to get back correct keys and all values in JSON.
-
+:warning: Must be used in conjuction with [`fcl.decode(response)`](<##`fcl.decode(response)`>) to get back correct keys and all values in JSON.
 
 ### Arguments
 
-| Name            | Type                              | Description                                                                                                                                         |
-| --------------- | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Name       | Type                                | Description            |
+| ---------- | ----------------------------------- | ---------------------- |
 | `builders` | Array: [[...builders]](#`Builders`) | See builder functions. |
 
 ### Returns
 
-| Type            | Description                                                                    |
-| --------------- | ------------------------------------------------------------------------------ |
-| string(encoded) | A raw string response from Cadence that needs to be parsed via `fcl.decode()`. |
+| Type                                 | Description                                                                                                                                       |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [ResponseObject](##`ResponseObject`) | An object containing the data returned from the chain. Should always be decoded with `fcl.decode()` to get back appropriate JSON keys and values. |
 
 ### Usage
 
@@ -212,9 +215,9 @@ import * as fcl from "@onflow/fcl";
 
 // a script only needs to resolve the arguments to the script
 const response = await fcl.send([fcl.script`${script}`, fcl.args(args)]);
-// note: response is encoded, call await fcl.decode(response) to get JSON
+// note: response values are encoded, call await fcl.decode(response) to get JSON
 
-// a transaction requires multiple 'interactions' that need to be resolved prior to sending for executed to Flow - such as setting the authorizations.
+// a transaction requires multiple 'builders' that need to be resolved prior to being sent to the chain - such as setting the authorizations.
 const response = await fcl.send([
   fcl.transaction`
     ${transaction}
@@ -238,17 +241,17 @@ const response = await fcl.send([
 
 ## `fcl.decode(response)`
 
-Decodes the raw response from `fcl.send()` into the appropriate JSON representation of all relevant keys and values.
+Decodes the response from `fcl.send()` into the appropriate JSON representation of all relevant keys and values.
 
 ### Note
 
-:loudspeaker: To decode custom structs and define your custom decoding, see [`tutorial`](<##`fcl.decode()`>).
+:loudspeaker: To decode custom structs and define your own custom decoding, see [`tutorial`](#TODO).
 
 ### Arguments
 
-| Name       | Type            | Description                                                       |
-| ---------- | --------------- | ----------------------------------------------------------------- |
-| `response` | string(encoded) | Should be the raw string response returned from `fcl.send([...])` |
+| Name       | Type                                 | Description                                            |
+| ---------- | ------------------------------------ | ------------------------------------------------------ |
+| `response` | [ResponseObject](##`ResponseObject`) | Should be the response returned from `fcl.send([...])` |
 
 ### Returns
 
@@ -293,31 +296,32 @@ build, resolve, and send it to the blockchain. A valid populated template is ref
 
 :warning: **These methods must be used with `fcl.send([...builders])`**
 
+
 ## Query Builders
+
 ---
 
 ## `fcl.getAccount(address)`
 
-A builder function that returns the script template to get an account by address.
-:warning: Ensure there is no prefix on the address by calling `fcl.sansPrefix(address)`
+A builder function that returns the interaction to get an account by address.
 
 ### Arguments
 
-| Name      | Type                   | Description                                   |
-| --------- | ---------------------- | --------------------------------------------- |
-| `address` | [Address](##`Address`) | Address of the user account without a prefix. |
+| Name      | Type                   | Description                                                                        |
+| --------- | ---------------------- | ---------------------------------------------------------------------------------- |
+| `address` | [Address](##`Address`) | Address of the user account with or without a prefix (both formats are supported). |
 
 ### Returns
 
-| Type                           | Description                                                                            |
-| ------------------------------ | -------------------------------------------------------------------------------------- |
-| [Interaction](##`Interaction`) | A populated cadence script that contains the code and values needed to get an account. |
+| Type                           | Description                                                                |
+| ------------------------------ | -------------------------------------------------------------------------- |
+| [Interaction](##`Interaction`) | An interaction that contains the code and values needed to get an account. |
 
-### Return from `fcl.send([fcl.getAccount(address)])`
+### Returns after decoding
 
-| Type                         | Description     |
-| ---------------------------- | --------------- |
-| [AccountObject](##`Account`) | A user account. |
+| Type                         | Description                              |
+| ---------------------------- | ---------------------------------------- |
+| [AccountObject](##`Account`) | A JSON representation of a user account. |
 
 ### Usage
 
@@ -326,16 +330,16 @@ import * as fcl from "@onflow/fcl";
 
 // somewhere in an async function
 getAccount = async (address: string) => {
-  const { account } = await fcl.send([fcl.getAccount(address)]);
+  const account = await fcl.send([fcl.getAccount(address)]).then(fcl.decode);
   return account;
 };
 ```
 
 ---
 
-## `fcl.getLatestBlock(isSealed)`
+## `fcl.getLatestBlock(isSealed)` - Deprecated
 
-A builder function that returns an [Interaction](##`Interactions`) with information containing your intended use of the Flow blockchain. 
+A builder function that returns an [Interaction](##`Interactions`) with information containing your intended use of the Flow blockchain.
 
 ### Arguments
 
@@ -345,11 +349,11 @@ A builder function that returns an [Interaction](##`Interactions`) with informat
 
 ### Returns
 
-| Type                           | Description                                                                            |
-| ------------------------------ | -------------------------------------------------------------------------------------- |
+| Type                            | Description                                                                            |
+| ------------------------------- | -------------------------------------------------------------------------------------- |
 | [Interaction](##`Interactions`) | A populated cadence script that contains the code and values needed to get an account. |
 
-### Return from `fcl.send([fcl.getLatestBlock(isSealed)])`
+### Returns after decoding
 
 | Type                           | Description       |
 | ------------------------------ | ----------------- |
@@ -362,7 +366,9 @@ import * as fcl from "@onflow/fcl";
 
 // somewhere in an async function
 getLatestBlock = async (address: string) => {
-  const { block } = await fcl.send([fcl.getLatestBlock(isSealed)]);
+  const block = await fcl
+    .send([fcl.getEventsAtBlockHeightRange(isSealed)])
+    .then(fcl.decode);
   return block;
 };
 ```
@@ -377,19 +383,19 @@ A builder function that returns all instances of a particular event (by name) wi
 
 ### Arguments
 
-| Name        | Type                        | Description                                                      |
-| ----------- | --------------------------- | ---------------------------------------------------------------- |
-| `eventName` | [EventName]](##`EventName`) | The name of the event.                                           |
-| `fromBlock` | number                      | The height of the block to start looking for events (inclusive). |
-| `toBlock`   | number                      | The height of the block to stop looking for events (inclusive).  |
+| Name        | Type                       | Description                                                      |
+| ----------- | -------------------------- | ---------------------------------------------------------------- |
+| `eventName` | [EventName](##`EventName`) | The name of the event.                                           |
+| `fromBlock` | number                     | The height of the block to start looking for events (inclusive). |
+| `toBlock`   | number                     | The height of the block to stop looking for events (inclusive).  |
 
 ### Returns
 
-| Type                           | Description                                                                                             |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------- |
+| Type                            | Description                                                                                             |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | [Interaction](##`Interactions`) | A populated cadence script that contains the code and values needed to get events within a block range. |
 
-### Return from `fcl.send([fcl.getEventsAtBlockHeightRange(eventName,fromBlock,toBlock)])`
+### Returns after decoding
 
 | Type                             | Description                                    |
 | -------------------------------- | ---------------------------------------------- |
@@ -400,11 +406,134 @@ A builder function that returns all instances of a particular event (by name) wi
 ```javascript
 import * as fcl from "@onflow/fcl";
 
-// somewhere in an async function
-getAccount = async (address: string) => {
-  const { account } = await fcl.send([fcl.getAccount(address)]);
-  return account;
-};
+const events = await fcl
+  .send([
+    fcl.getEventsAtBlockHeightRange(
+      "A.7e60df042a9c0868.FlowToken.TokensWithdrawn",
+      35580624,
+      35580624
+    ),
+  ])
+  .then(fcl.decode);
+```
+
+---
+
+## Utility Builders
+
+---
+
+## `fcl.arg(value, type)`
+
+A utility builder to be used with `fcl.args[...]` to create FCL supported arguments for interactions.
+
+### Arguments
+
+| Name    | Type                | Description                                               |
+| ------- | ------------------- | --------------------------------------------------------- |
+| `value` | any                 | Any value that you are looking to pass to other builders. |
+| `type`  | [FType](##`FTypes`) | A type supported by Flow.                                 |
+
+### Returns
+
+| Type                                   | Description                                                                                                         |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| [ArgumentObject](##`ArgumentObject`) | Holds the value and type passed in. |
+
+### Usage
+
+```javascript
+import * as fcl from "@onflow/fcl";
+
+await fcl
+  .send([
+    fcl.script`
+      pub fun main(a: Int, b: Int): Int {
+        return a + b
+      }
+    `,
+    fcl.args([
+      fcl.arg(5, t.Int), // a
+      fcl.arg(4, t.Int), // b
+    ]),
+  ])
+  .then(fcl.decode);
+```
+
+---
+
+## `fcl.args([...args])`
+
+A utility builder to be used with other builders to pass in arguments with a value and supported type. 
+
+### Arguments
+
+| Name    | Type                | Description                                               |
+| ------- | ------------------- | --------------------------------------------------------- |
+| `args` | [[Argument Objects]](##`ArgumentObject`)                 | An array of arguments that you are looking to pass to other builders. |
+
+### Returns
+
+| Type                                   | Description                                                                                                         |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| [Partial Interaction](##`Interaction`) | An interaction that contains the arguments and types passed in. This alone is a partial and incomplete interaction. |
+
+### Usage
+
+```javascript
+import * as fcl from "@onflow/fcl";
+
+await fcl
+  .send([
+    fcl.script`
+      pub fun main(a: Int, b: Int): Int {
+        return a + b
+      }
+    `,
+    fcl.args([
+      fcl.arg(5, t.Int), // a
+      fcl.arg(4, t.Int), // b
+    ]),
+  ])
+  .then(fcl.decode);
+```
+
+---
+
+## Template Builders
+
+---
+
+## `fcl.script(CODE)`
+
+A template builder to use a Cadence script for an interaction. 
+:loudspeaker: Use with `fcl.args[...]` to pass in arguments dynamically.
+
+### Arguments
+
+| Name    | Type                | Description                                               |
+| ------- | ------------------- | --------------------------------------------------------- |
+| `CODE` | string                 | Should be valid Cadence code. |
+
+### Returns
+
+| Type                                   | Description                                                                                                         |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| [Interaction](##`Interaction`) | An interaction containing the code passed in. |
+
+### Usage
+
+```javascript
+import * as fcl from "@onflow/fcl";
+
+const code = `
+  pub fun main(): Int {
+    return 5 + 4
+  }
+`;
+const answer = await fcl.send([fcl.script(code)]).then(fcl.decode);
+console.log(answer); // 9
+
 ```
 
 ---
@@ -446,6 +575,13 @@ The JSON representation of an account on the Flow blockchain.
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | string(formatted) | A valid Flow address should be 16 characters in length. <br>A `0x` prefix is optional during inputs. <br>eg. `f8d6e0586b0a20c1` |
 
+## `ArgumentObject`
+An argument object created by `fcl.arg(value,type)`
+| Key | Value Type | Description |
+| ---- | ---------- | ----------- |
+| `value` | any | Any value to be used as an argument to a builder. |
+| `xform` | [FType](##`FType`) | Any of the supported types on Flow. |
+
 ## `EventName`
 
 | Value Type        | Description                                                                                                                        |
@@ -473,13 +609,42 @@ This is the JSON representation of a key on the Flow blockchain.
 
 ## `BlockObject`
 
-This is the JSON representation of a key on the Flow blockchain.
+The JSON representation of a key on the Flow blockchain.
 | Key | Value Type | Description |
 | ---- | ---------- | ----------- |
 | `id` | string | The id of the block. |
 | `parentId` | string | The id of the parent block. |
 | `height` | number | The height of the block. |
 | `timestamp` | object | Contains time related fields. |
-| `collectionGuarantees` | [] | ??? |
+| `collectionGuarantees` | [] | :tomato: TODO |
 | `blockSeals` | [[SealedBlockObject]](##`SealedBlockObject`) | The details of which nodes executed and sealed the blocks. |
 | `signatures` | Uint8Array([numbers]) | All signatures. |
+
+## `ResponseObject`
+
+The format of all responses in FCL returned from `fcl.send(...)`
+| Key | Value Type | Description |
+| ---- | ---------- | ----------- |
+| `tag` | string | :tomato: TODO |
+| `transaction` | [Transaction](##`Transaction`) | :tomato: TODO |
+| `transactionStatus` | [TransactionStatus](##`TransactionStatus`) | :tomato: TODO |
+| `transactionId` | [TransactionId](##`TransactionId`) | :tomato: TODO |
+| `encodedData` | object | :tomato: TODO |
+| `events` | object | :tomato: TODO |
+| `account` | object | :tomato: TODO |
+| `block` | object | :tomato: TODO |
+| `blockHeader` | object | :tomato: TODO |
+| `latestBlock` | object | :tomato: TODO |
+| `collection` | object | :tomato: TODO |
+
+## `FType`
+
+FCL arguments must specify one of the following support types for each value passed in.
+| Type |
+| ---- |
+| `UInt` |
+| `UInt8` |
+| `UInt16` |
+| `UInt32` |
+| `UInt64` |
+:tomato: TODO add more
