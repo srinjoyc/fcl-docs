@@ -299,8 +299,6 @@ build, resolve, and send it to the blockchain. A valid populated template is ref
 
 ## Query Builders
 
----
-
 ## `fcl.getAccount(address)`
 
 A builder function that returns the interaction to get an account by address.
@@ -501,8 +499,6 @@ await fcl
 ---
 
 ## Template Builders
-
----
 
 ## `fcl.script(CODE)`
 
