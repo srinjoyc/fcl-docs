@@ -419,8 +419,6 @@ const events = await fcl
 
 ## Utility Builders
 
----
-
 ## `fcl.arg(value, type)`
 
 A utility builder to be used with `fcl.args[...]` to create FCL supported arguments for interactions.
