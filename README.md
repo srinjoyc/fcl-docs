@@ -10,21 +10,19 @@
 
 These methods allows dapps to interact with wallet services in order to authenticate the user and authorize transactions on their behalf.
 
-> :warning: **These methods can only be used client side.**
 
 ## Methods
 
 ---
 
 ## `fcl.authenticate()`
+> :warning: **This method can only be used client side.**
 
 Used to authenticate the current user via any wallet that supports FCL. Once called, FCL will initiate communication with the configured `challenge.handshake` endpoint or default to the `discovery.wallet` endpoint which lets the user select a supported custodial wallet ([see supported wallets](#Wallets)).
 
 ### Note
 
 :warning: Either `challenge.handshake` or `discovery.wallet` values **must** be set in the configuration before calling this method. See [FCL Configuration](#Methods).
-
-:loudspeaker: Should only be used if using a different set of authentication options are needed rather than the default. Use the aliases [`fcl.login()`](<##`fcl.login()`>) or [`fcl.signup()`](<##`fcl.signUp()`>) instead.
 
 :loudspeaker: The default discovery endpoint will open an iframe overlay to let the user choose a supported wallet.
 
@@ -43,6 +41,7 @@ fcl.authenticate();
 ---
 
 ## `fcl.unauthenticate()`
+> :warning: **This method can only be used client side.**
 
 Logs out the current user.
 
@@ -67,8 +66,9 @@ fcl.unauthenticate();
 ---
 
 ## `fcl.reauthenticate()`
+> :warning: **This method can only be used client side.**
 
-A convenience method that calls `fcl.unauthenticate()` and then `fcl.authenticate()` for the current user.
+A **convenience method** that calls `fcl.unauthenticate()` and then `fcl.authenticate()` for the current user.
 
 ### Note
 
@@ -92,8 +92,9 @@ fcl.reauthenticate();
 ---
 
 ## `fcl.signUp()`
+> :warning: **This method can only be used client side.**
 
-A convenience method that calls [`fcl.authenticate()`](<##`fcl.authenticate(opts)`>)
+A **convenience method** that calls [`fcl.authenticate()`](##`fcl.authenticate()`)
 
 ### Note
 
@@ -114,8 +115,9 @@ fcl.signUp();
 ---
 
 ## `fcl.login()`
+> :warning: **This method can only be used client side.**
 
-A convenience method that calls [`fcl.authenticate()`](<##`fcl.authenticate(opts)`>) with no options.
+A **convenience method** that calls [`fcl.authenticate()`](##`fcl.authenticate()`).
 
 ### Usage
 
@@ -133,7 +135,7 @@ fcl.login();
 
 ## `fcl.authz`
 
-A convenience method that produces the needed authorization details for the current user to submit transactions to Flow.
+A **convenience method** that produces the needed authorization details for the current user to submit transactions to Flow.
 
 ### Returns
 
@@ -170,7 +172,9 @@ const response = fcl.send([
 
 # On-chain Interactions
 
-These methods allows dapps to interact directly with the Flow blockchain via a set of functions that wrap the [Access Node API](https://docs.onflow.org/access-api/) along with utilities to make it easier to send and decode responses. This set of functionality is similar to what is offered in other [SDKs](https://google.ca).
+These methods allows dapps to interact directly with the Flow blockchain via a set of functions that currently use the [Access Node API](https://docs.onflow.org/access-api/) along with utilities to make it easier to send and decode responses. This set of functionality is similar to what is offered in other [SDKs](https://docs.onflow.org/sdks/) but allows for greater composability and customizability. 
+
+**In general, all interactions need to be built and sent to the chain via `fcl.send()` and then decoded via `fcl.decode()`.** 
 
 > :loudspeaker: **These methods can be used both on the client and server.**
 
@@ -180,25 +184,20 @@ These methods allows dapps to interact directly with the Flow blockchain via a s
 
 ## `fcl.send([...builders])`
 
-Sends arbitrary scripts and transactions to the Flow Blockchain's [Access Node API](https://docs.onflow.org/access-api/).
+Sends arbitrary scripts, transactions, and requests to the blockchain.
 
-It consumes an array of [builders](https://google.ca) that are to be resolved and sent. The interactions required to be included in the array depend on the script or transaction that is being built.
+It consumes an array of [builders](https://google.ca) that are to be resolved and sent. The builders required to be included in the array depend on the [Interaction](##`Interactions`) that is being built.
 
 ### Note
 
-:warning: Must be used in conjuction with [`fcl.decode()`](#Methods) to get back values in JSON.
+:warning: Must be used in conjuction with [`fcl.decode(response)`](##`fcl.decode(response)`) to get back correct keys and all values in JSON.
 
-:loudspeaker: Some common utility interactions that will be resolved for you (and thus can be passed in directly as an array element) are:
-
-- [`fcl.getAccount()`](<##`fcl.getAccount()`>)
-- [`fcl.getEventsAtBlockHeightRange()`](<##`fcl.getEventsAtBlockHeightRange()`>)
-- [`fcl.getBlock()`](##`fcl.getAccount`)
 
 ### Arguments
 
 | Name            | Type                              | Description                                                                                                                                         |
 | --------------- | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `[...builders]` | Array: [[...builders]](#Builders) | Should contain a `fcl.script` or a `fcl.transaction` along with any relevant builders needed to resolve any arguments to the script or transaction. |
+| `builders` | Array: [[...builders]](#`Builders`) | See builder functions. |
 
 ### Returns
 
@@ -239,7 +238,7 @@ const response = await fcl.send([
 
 ## `fcl.decode(response)`
 
-Decodes the raw string returned from Cadence into regular JSON consumable by javascript.
+Decodes the raw response from `fcl.send()` into the appropriate JSON representation of all relevant keys and values.
 
 ### Note
 
@@ -294,8 +293,7 @@ build, resolve, and send it to the blockchain. A valid populated template is ref
 
 :warning: **These methods must be used with `fcl.send([...builders])`**
 
-## Methods
-
+## Query Builders
 ---
 
 ## `fcl.getAccount(address)`
@@ -337,25 +335,25 @@ getAccount = async (address: string) => {
 
 ## `fcl.getLatestBlock(isSealed)`
 
-A builder function that returns the script template to get the latest block.
+A builder function that returns an [Interaction](##`Interactions`) with information containing your intended use of the Flow blockchain. 
 
 ### Arguments
 
-| Name      | Type                   | Description                                   |
-| --------- | ---------------------- | --------------------------------------------- |
+| Name       | Type               | Description                                                                            |
+| ---------- | ------------------ | -------------------------------------------------------------------------------------- |
 | `isSealed` | (optional) boolean | If the latest block requested should be sealed or not. See [Block State](#BlockState). |
 
 ### Returns
 
 | Type                           | Description                                                                            |
 | ------------------------------ | -------------------------------------------------------------------------------------- |
-| [Interaction](##`Interaction`) | A populated cadence script that contains the code and values needed to get an account. |
+| [Interaction](##`Interactions`) | A populated cadence script that contains the code and values needed to get an account. |
 
 ### Return from `fcl.send([fcl.getLatestBlock(isSealed)])`
 
-| Type                         | Description     |
-| ---------------------------- | --------------- |
-| [BlockObject](##`BlockObject`) |The latest block. |
+| Type                           | Description       |
+| ------------------------------ | ----------------- |
+| [BlockObject](##`BlockObject`) | The latest block. |
 
 ### Usage
 
@@ -379,22 +377,22 @@ A builder function that returns all instances of a particular event (by name) wi
 
 ### Arguments
 
-| Name        | Type   | Description                                                      |
-| ----------- | ------ | ---------------------------------------------------------------- |
-| `eventName` | [EventName]](##`EventName`) | The name of the event.                    |
-| `fromBlock` | number | The height of the block to start looking for events (inclusive). |
-| `toBlock`   | number | The height of the block to stop looking for events (inclusive).  |
+| Name        | Type                        | Description                                                      |
+| ----------- | --------------------------- | ---------------------------------------------------------------- |
+| `eventName` | [EventName]](##`EventName`) | The name of the event.                                           |
+| `fromBlock` | number                      | The height of the block to start looking for events (inclusive). |
+| `toBlock`   | number                      | The height of the block to stop looking for events (inclusive).  |
 
 ### Returns
 
-| Type                           | Description                                                                            |
-| ------------------------------ | -------------------------------------------------------------------------------------- |
-| [Interaction](##`Interaction`) | A populated cadence script that contains the code and values needed to get events within a block range. |
+| Type                           | Description                                                                                             |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------- |
+| [Interaction](##`Interactions`) | A populated cadence script that contains the code and values needed to get events within a block range. |
 
 ### Return from `fcl.send([fcl.getEventsAtBlockHeightRange(eventName,fromBlock,toBlock)])`
 
-| Type                         | Description     |
-| ---------------------------- | --------------- |
+| Type                             | Description                                    |
+| -------------------------------- | ---------------------------------------------- |
 | [[EventObject]](##`EventObject`) | An array of events that matched the eventName. |
 
 ### Usage
@@ -415,7 +413,7 @@ getAccount = async (address: string) => {
 
 ## `Builders`
 
-Builders are modular functions that can be coupled together with `fcl.send([...builders])` to create an [Interaction](##`Interaction`). The builders needed to create an interaction depend on the script or transaction that is being sent.
+Builders are modular functions that can be coupled together with `fcl.send([...builders])` to create an [Interaction](##`Interactions`). The builders needed to create an interaction depend on the script or transaction that is being sent.
 
 ## `Interactions`
 
@@ -433,7 +431,7 @@ This type conforms to the interface required for FCL to authorize transaction on
 
 ## `AccountObject`
 
-This is the JSON representation of an account on the Flow blockchain.
+The JSON representation of an account on the Flow blockchain.
 | Key | Value Type | Description |
 | ---- | ---------- | ----------- |
 | `address` | [Address](##`Address`) | The address of the account |
@@ -450,8 +448,8 @@ This is the JSON representation of an account on the Flow blockchain.
 
 ## `EventName`
 
-| Value Type        | Description                                                                                                                     |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Value Type        | Description                                                                                                                        |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | string(formatted) | A event name in Flow must follow the format `A.{AccountAddress}.{ContractName}.{EventName}` <br>eg. `A.ba1132bc08f82fe2.Debug.Log` |
 
 ## `Contract`
