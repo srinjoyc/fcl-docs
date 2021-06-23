@@ -1,10 +1,116 @@
 # Flow Client Library (FCL) API Reference
 
-**Version**: 0.70.0
+**Version**: 0.73.0
 
-**Last Updated**: June 10th, 2021
+**Last Updated**: June 22nd, 2021
 
 **Github**: https://github.com/onflow/flow-js-sdk/
+
+# Configuration
+
+FCL has a mechanism that lets you configure various aspects of FCL. When you move from one instance of the Flow Blockchain to another (Local Emulator to Testnet to Mainnet) the only thing you should need to change for your FCL implementation is your configuration.
+
+---
+
+## Setting Configuration Values
+
+Values only need to be set once. We recomend doing this once and as early in the life cycle as possible.
+To set a configuation value, the `put` method on the `config` instance needs to be called, the `put` method returns the `config` instance so they can be chained.
+
+```javascript
+import * as fcl from "@onflow/fcl";
+
+fcl
+  .config() // returns the config instance
+  .put("foo", "bar") // configures "foo" to be "bar"
+  .put("baz", "buz"); // configures "baz" to be "buz"
+```
+
+## Getting Configuration Values
+
+The `config` instance has an asynchronous `get` method. You can also pass it a fallback value incase the configuration state does not include what you are wanting.
+
+```javascript
+import * as fcl from "@onflow/fcl";
+
+fcl.config().put("foo", "bar").put("woot", 5).put("rawr", 7);
+
+const FALLBACK = 1;
+
+async function addStuff() {
+  var woot = await fcl.config().get("woot", FALLBACK); // will be 5 -- set in the config before
+  var rawr = await fcl.config().get("rawr", FALLBACK); // will be 7 -- set in the config before
+  var hmmm = await fcl.config().get("hmmm", FALLBACK); // will be 1 -- uses fallback because this isnt in the config
+
+  return woot + rawr + hmmm;
+}
+
+addStuff().then((d) => console.log(d)); // 13 (5 + 7 + 1)
+```
+
+## Common Configuration Keys
+
+| Name                        | Example                                              | Description                                                                                               |
+| --------------------------- | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `accessNode.api` (required) | `https://access-testnet.onflow.org`                  | API URL for the Flow Blockchain Access Node you want to be communicating with. See list here.             |
+| `env`                       | `testnet`                                            | Used in conjunction with stored interactions. Possible values: `local`, `canarynet`, `testnet`, `mainnet` |
+| `discovery.wallet`          | `https://fcl-discovery.onflow.org/testnet/authn`     | Points FCL at the Wallet or Wallet Discovery mechanism.                                                   |
+| `app.detail.title`          | `Cryptokitties`                                      | Your applications title, can be requested by wallets and other services.                                  |
+| `app.detail.icon`           | `https://fcl-discovery.onflow.org/images/blocto.png` | Url for your applications icon, can be requested by wallets and other services.                           |
+| `challenge.handshake`       | DEPRECATED                                           | Use `discovery.wallet` instead.                                                                           |
+
+## Address replacement in scripts and transactions
+
+Configuration keys that start with `0x` will be replaced in FCL scripts and transactions, this allows you to write your script or transaction Cadence code once and not have to change it when you point your application at a difference instance of the Flow Blockchain.
+
+```javascript
+import * as fcl from "@onflow/fcl";
+
+fcl.config().put("0xFungibleToken", "0xf233dcee88fe0abe");
+
+async function myScript() {
+  return fcl
+    .send([
+      fcl.script`
+      import FungibleToken from 0xFungibleToken // will be replaced with 0xf233dcee88fe0abe because of the configuration
+
+      pub fun main() { /* Rest of the script goes here */ }
+    `,
+    ])
+    .then(fcl.decode);
+}
+
+async function myTransaction() {
+  return fcl
+    .send([
+      fcl.transaction`
+      import FungibleToken from 0xFungibleToken // will be replaced with 0xf233dcee88fe0abe because of the configuration
+
+      transaction { /* Rest of the transaction goes here */ }
+    `,
+    ])
+    .then(fcl.decode);
+}
+```
+
+## Example
+
+```javascript
+import * as fcl from "@onflow/fcl";
+
+fcl
+  .config()
+  .put("env", "testnet")
+  .put("accessNode.api", "https://access-testnet.onflow.org")
+  .put("discovery.wallet", "https://fcl-discovery.onflow.org/testnet/authn")
+  .put("app.detail.title", "Test Harness")
+  .put("app.detail.icon", "https://i.imgur.com/r23Zhvu.png")
+  .put("0xFlowToken", "0x7e60df042a9c0868");
+```
+
+> :tomato: left out openID scopes
+
+---
 
 # Wallet Interactions
 
@@ -18,11 +124,11 @@ These methods allows dapps to interact with wallet services in order to authenti
 
 > :warning: **This method can only be used client side.**
 
-Used to authenticate the current user via any wallet that supports FCL. Once called, FCL will initiate communication with the configured `challenge.handshake` endpoint or default to the `discovery.wallet` endpoint which lets the user select a supported custodial wallet ([see supported wallets](#Wallets)).
+Used to authenticate the current user via any wallet that supports FCL. Once called, FCL will initiate communication with the configured `discovery.wallet` endpoint which lets the user select a supported custodial wallet ([see supported wallets](#Wallets)). :tomato: Fix link
 
 ### Note
 
-:warning: Either `challenge.handshake` or `discovery.wallet` values **must** be set in the configuration before calling this method. See [FCL Configuration](#Methods).
+:warning: `discovery.wallet` value **must** be set in the configuration before calling this method. See [FCL Configuration](#Configuration).
 
 :loudspeaker: The default discovery endpoint will open an iframe overlay to let the user choose a supported wallet.
 
@@ -30,6 +136,9 @@ Used to authenticate the current user via any wallet that supports FCL. Once cal
 
 ```javascript
 import * as fcl from "@onflow/fcl";
+fcl.config()
+.put("accessNode.api", "https://access-testnet.onflow.org")
+.put("discovery.wallet", "https://fcl-discovery.onflow.org/testnet/authn")
 // anywhere on the page
 fcl.authenticate();
 ```
@@ -54,6 +163,7 @@ Logs out the current user.
 
 ```javascript
 import * as fcl from "@onflow/fcl";
+fcl.config().put("accessNode.api", "https://access-testnet.onflow.org")
 // first authenticate to set current user
 fcl.authenticate();
 // ... somewhere else & sometime later
@@ -174,6 +284,84 @@ const response = fcl.send([
 
 ---
 
+# Current User
+Holds the [current user](##`CurrentUserObject`) if set and offers a set of functions to manage the authentication and authorization of the user.
+
+## Methods
+
+---
+## `fcl.currentUser().subscribe(callback)`
+
+A method to use with your state management tool of choice to set and unset the current user based on the authentication functions.
+
+> :warning: **This method can only be used client side.**
+
+### Arguments
+
+| Name       | Type                                 | Description                                            |
+| ---------- | ------------------------------------ | ------------------------------------------------------ |
+| `callback` | function | The callback will be called with the [current user](##`CurrentUserObject`) as the first argument when the current user is set or removed.|
+
+
+### Usage
+
+```javascript
+import React, {useState, useEffect} from "react"
+import * as fcl from "@onflow/fcl"
+
+export function AuthCluster() {
+  const [user, setUser] = useState({loggedIn: null})
+  useEffect(() => fcl.currentUser().subscribe(setUser), []) // sets the callback for FCL to use
+
+  if (user.loggedIn) {
+    return (
+      <div>
+        <span>{user?.addr ?? "No Address"}</span>
+        <button onClick={fcl.unauthenticate}>Log Out</button> {/* once logged out in setUser(user) will be called */}
+      </div>
+    )
+  } else {
+    return (
+      <div>
+        <button onClick={fcl.logIn}>Log In</button> {/* once logged in setUser(user) will be called */}
+        <button onClick={fcl.signUp}>Sign Up</button> {/* once signed up, setUser(user) will be called */}
+      </div>
+    )
+  }
+}
+```
+
+### Examples
+
+- [Auth Cluster in React](https://docs.onflow.org/flow-js-sdk/flow-app-quickstart/#authentication)
+
+---
+
+## `fcl.currentUser().snapshot()`
+
+:tomato: TODO
+
+---
+## `fcl.currentUser().signUserMessage(msg, opts)`
+
+:tomato: TODO
+
+---
+## `fcl.currentUser().authenticate()`
+
+Equivalent to `fcl.authenticate()` (recommended).
+
+---
+## `fcl.currentUser().unauthenticate()`
+
+Equivalent to `fcl.unauthenticate()` (recommended).
+
+---
+## `fcl.currentUser().authorization()`
+
+Equivalent to `fcl.authz` (recommended).
+
+---
 # On-chain Interactions
 
 > :loudspeaker: **These methods can be used both on the client and server.**
@@ -296,7 +484,6 @@ build, resolve, and send it to the blockchain. A valid populated template is ref
 
 :warning: **These methods must be used with `fcl.send([...builders])`**
 
-
 ## Query Builders
 
 ## `fcl.getAccount(address)`
@@ -327,7 +514,8 @@ A builder function that returns the interaction to get an account by address.
 import * as fcl from "@onflow/fcl";
 
 // somewhere in an async function
-getAccount = async (address: string) => {
+// fcl.account is the same as this function
+const getAccount = async (address) => {
   const account = await fcl.send([fcl.getAccount(address)]).then(fcl.decode);
   return account;
 };
@@ -432,8 +620,8 @@ A utility builder to be used with `fcl.args[...]` to create FCL supported argume
 
 ### Returns
 
-| Type                                   | Description                                                                                                         |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Type                                 | Description                         |
+| ------------------------------------ | ----------------------------------- |
 | [ArgumentObject](##`ArgumentObject`) | Holds the value and type passed in. |
 
 ### Usage
@@ -460,13 +648,13 @@ await fcl
 
 ## `fcl.args([...args])`
 
-A utility builder to be used with other builders to pass in arguments with a value and supported type. 
+A utility builder to be used with other builders to pass in arguments with a value and supported type.
 
 ### Arguments
 
-| Name    | Type                | Description                                               |
-| ------- | ------------------- | --------------------------------------------------------- |
-| `args` | [[Argument Objects]](##`ArgumentObject`)                 | An array of arguments that you are looking to pass to other builders. |
+| Name   | Type                                     | Description                                                           |
+| ------ | ---------------------------------------- | --------------------------------------------------------------------- |
+| `args` | [[Argument Objects]](##`ArgumentObject`) | An array of arguments that you are looking to pass to other builders. |
 
 ### Returns
 
@@ -500,19 +688,19 @@ await fcl
 
 ## `fcl.script(CODE)`
 
-A template builder to use a Cadence script for an interaction. 
+A template builder to use a Cadence script for an interaction.
 :loudspeaker: Use with `fcl.args[...]` to pass in arguments dynamically.
 
 ### Arguments
 
-| Name    | Type                | Description                                               |
-| ------- | ------------------- | --------------------------------------------------------- |
-| `CODE` | string                 | Should be valid Cadence code. |
+| Name   | Type   | Description                   |
+| ------ | ------ | ----------------------------- |
+| `CODE` | string | Should be valid Cadence code. |
 
 ### Returns
 
-| Type                                   | Description                                                                                                         |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Type                           | Description                                   |
+| ------------------------------ | --------------------------------------------- |
 | [Interaction](##`Interaction`) | An interaction containing the code passed in. |
 
 ### Usage
@@ -527,7 +715,6 @@ const code = `
 `;
 const answer = await fcl.send([fcl.script(code)]).then(fcl.decode);
 console.log(answer); // 9
-
 ```
 
 ---
@@ -570,6 +757,7 @@ The JSON representation of an account on the Flow blockchain.
 | string(formatted) | A valid Flow address should be 16 characters in length. <br>A `0x` prefix is optional during inputs. <br>eg. `f8d6e0586b0a20c1` |
 
 ## `ArgumentObject`
+
 An argument object created by `fcl.arg(value,type)`
 | Key | Value Type | Description |
 | ---- | ---------- | ----------- |
