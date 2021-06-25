@@ -2,7 +2,7 @@
 
 **Version**: 0.73.0
 
-**Last Updated**: June 22nd, 2021
+**Last Updated**: June 25, 2021
 
 **Github**: https://github.com/onflow/flow-js-sdk/
 
@@ -136,9 +136,10 @@ Used to authenticate the current user via any wallet that supports FCL. Once cal
 
 ```javascript
 import * as fcl from "@onflow/fcl";
-fcl.config()
-.put("accessNode.api", "https://access-testnet.onflow.org")
-.put("discovery.wallet", "https://fcl-discovery.onflow.org/testnet/authn")
+fcl
+  .config()
+  .put("accessNode.api", "https://access-testnet.onflow.org")
+  .put("discovery.wallet", "https://fcl-discovery.onflow.org/testnet/authn");
 // anywhere on the page
 fcl.authenticate();
 ```
@@ -163,7 +164,7 @@ Logs out the current user.
 
 ```javascript
 import * as fcl from "@onflow/fcl";
-fcl.config().put("accessNode.api", "https://access-testnet.onflow.org")
+fcl.config().put("accessNode.api", "https://access-testnet.onflow.org");
 // first authenticate to set current user
 fcl.authenticate();
 // ... somewhere else & sometime later
@@ -285,11 +286,13 @@ const response = fcl.send([
 ---
 
 # Current User
+
 Holds the [current user](##`CurrentUserObject`) if set and offers a set of functions to manage the authentication and authorization of the user.
 
 ## Methods
 
 ---
+
 ## `fcl.currentUser().subscribe(callback)`
 
 A method to use with your state management tool of choice to set and unset the current user based on the authentication functions.
@@ -298,20 +301,19 @@ A method to use with your state management tool of choice to set and unset the c
 
 ### Arguments
 
-| Name       | Type                                 | Description                                            |
-| ---------- | ------------------------------------ | ------------------------------------------------------ |
-| `callback` | function | The callback will be called with the [current user](##`CurrentUserObject`) as the first argument when the current user is set or removed.|
-
+| Name       | Type     | Description                                                                                                                               |
+| ---------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `callback` | function | The callback will be called with the [current user](##`CurrentUserObject`) as the first argument when the current user is set or removed. |
 
 ### Usage
 
 ```javascript
-import React, {useState, useEffect} from "react"
-import * as fcl from "@onflow/fcl"
+import React, { useState, useEffect } from "react";
+import * as fcl from "@onflow/fcl";
 
 export function AuthCluster() {
-  const [user, setUser] = useState({loggedIn: null})
-  useEffect(() => fcl.currentUser().subscribe(setUser), []) // sets the callback for FCL to use
+  const [user, setUser] = useState({ loggedIn: null });
+  useEffect(() => fcl.currentUser().subscribe(setUser), []); // sets the callback for FCL to use
 
   if (user.loggedIn) {
     return (
@@ -319,14 +321,15 @@ export function AuthCluster() {
         <span>{user?.addr ?? "No Address"}</span>
         <button onClick={fcl.unauthenticate}>Log Out</button> {/* once logged out in setUser(user) will be called */}
       </div>
-    )
+    );
   } else {
     return (
       <div>
-        <button onClick={fcl.logIn}>Log In</button> {/* once logged in setUser(user) will be called */}
+        <button onClick={fcl.logIn}>Log In</button>{" "}
+        {/* once logged in setUser(user) will be called */}
         <button onClick={fcl.signUp}>Sign Up</button> {/* once signed up, setUser(user) will be called */}
       </div>
-    )
+    );
   }
 }
 ```
@@ -342,26 +345,31 @@ export function AuthCluster() {
 :tomato: TODO
 
 ---
+
 ## `fcl.currentUser().signUserMessage(msg, opts)`
 
 :tomato: TODO
 
 ---
+
 ## `fcl.currentUser().authenticate()`
 
 Equivalent to `fcl.authenticate()` (recommended).
 
 ---
+
 ## `fcl.currentUser().unauthenticate()`
 
 Equivalent to `fcl.unauthenticate()` (recommended).
 
 ---
+
 ## `fcl.currentUser().authorization()`
 
 Equivalent to `fcl.authz` (recommended).
 
 ---
+
 # On-chain Interactions
 
 > :loudspeaker: **These methods can be used both on the client and server.**
@@ -523,45 +531,73 @@ const getAccount = async (address) => {
 
 ---
 
-## `fcl.getLatestBlock(isSealed)` - Deprecated
+## `fcl.getBlock(isSealed)`
 
-A builder function that returns an [Interaction](##`Interactions`) with information containing your intended use of the Flow blockchain.
+A builder function that returns the interaction to get the latest block.
+:loudspeaker: Use with `fcl.atBlockId()` and `fcl.atBlockHeight()` when building the interaction to get information for older blocks.
 
 ### Arguments
 
-| Name       | Type               | Description                                                                            |
-| ---------- | ------------------ | -------------------------------------------------------------------------------------- |
-| `isSealed` | (optional) boolean | If the latest block requested should be sealed or not. See [Block State](#BlockState). |
-
-### Returns
-
-| Type                            | Description                                                                            |
-| ------------------------------- | -------------------------------------------------------------------------------------- |
-| [Interaction](##`Interactions`) | A populated cadence script that contains the code and values needed to get an account. |
+| Name       | Type    | Default | Description                                                                       |
+| ---------- | ------- | ------- | --------------------------------------------------------------------------------- |
+| `isSealed` | boolean | false   | If the latest block should be sealed or not. See [block states](##`Interaction`). |
 
 ### Returns after decoding
 
-| Type                           | Description       |
-| ------------------------------ | ----------------- |
-| [BlockObject](##`BlockObject`) | The latest block. |
+| Type                           | Description                                           |
+| ------------------------------ | ----------------------------------------------------- |
+| [BlockObject](##`BlockObject`) | The latest block if not used with any other builders. |
 
 ### Usage
 
 ```javascript
 import * as fcl from "@onflow/fcl";
 
-// somewhere in an async function
-getLatestBlock = async (address: string) => {
-  const block = await fcl
-    .send([fcl.getEventsAtBlockHeightRange(isSealed)])
-    .then(fcl.decode);
-  return block;
-};
+const latestSealedBlock = await fcl
+  .send([
+    fcl.getBlock(true), // isSealed = true
+  ])
+  .then(fcl.decode);
 ```
 
 ---
 
-## `fcl.getEventsAtBlockHeightRange(eventName,fromBlock,toBlock)`
+## `fcl.getBlockHeader()`
+
+A builder function that returns the interaction to get a block header.
+:loudspeaker: Use with `fcl.atBlockId()` and `fcl.atBlockHeight()` when building the interaction to get information for older blocks.
+
+### Returns after decoding
+
+| Type                                       | Description                                                  |
+| ------------------------------------------ | ------------------------------------------------------------ |
+| [BlockHeaderObject](##`BlockHeaderObject`) | The latest block header if not used with any other builders. |
+
+### Usage
+
+```javascript
+import * as fcl from "@onflow/fcl";
+
+const latestBlockHeader = await fcl
+  .send([fcl.getBlockHeader()])
+  .then(fcl.decode);
+```
+
+---
+
+## `fcl.getLatestBlock(isSealed)` - Deprecated
+
+Use [`fcl.getBlock`](##`fcl.getBlock`).
+
+---
+
+## `fcl.getEvents(eventName,fromBlock,toBlock)` - Deprecated
+
+Use [`fcl.getEventsAtBlockHeightRange`](##`fcl.getEventsAtBlockHeightRange`).
+
+---
+
+## `fcl.getEventsAtBlockHeightRange(eventName,fromBlockHeight,toBlockHeight)`
 
 A builder function that returns all instances of a particular event (by name) within a height range.
 :warning: The block range provided must be from the current spork. All events emitted during past sporks is current unavailable.
@@ -569,17 +605,12 @@ A builder function that returns all instances of a particular event (by name) wi
 
 ### Arguments
 
-| Name        | Type                       | Description                                                      |
-| ----------- | -------------------------- | ---------------------------------------------------------------- |
-| `eventName` | [EventName](##`EventName`) | The name of the event.                                           |
-| `fromBlock` | number                     | The height of the block to start looking for events (inclusive). |
-| `toBlock`   | number                     | The height of the block to stop looking for events (inclusive).  |
+| Name              | Type                       | Description                                                      |
+| ----------------- | -------------------------- | ---------------------------------------------------------------- |
+| `eventName`       | [EventName](##`EventName`) | The name of the event.                                           |
+| `fromBlockHeight` | number                     | The height of the block to start looking for events (inclusive). |
+| `toBlockHeight`   | number                     | The height of the block to stop looking for events (inclusive).  |
 
-### Returns
-
-| Type                            | Description                                                                                             |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| [Interaction](##`Interactions`) | A populated cadence script that contains the code and values needed to get events within a block range. |
 
 ### Returns after decoding
 
@@ -598,6 +629,45 @@ const events = await fcl
       "A.7e60df042a9c0868.FlowToken.TokensWithdrawn",
       35580624,
       35580624
+    ),
+  ])
+  .then(fcl.decode);
+```
+
+---
+
+## `fcl.getEventsAtBlockIds(eventName,[...blockIds])`
+
+A builder function that returns all instances of a particular event (by name) within a set of blocks specified by block ids.
+
+:warning: The block range provided must be from the current spork. All events emitted during past sporks is current unavailable.
+
+### Arguments
+
+| Name        | Type                       | Description                               |
+| ----------- | -------------------------- | ----------------------------------------- |
+| `eventName` | [EventName](##`EventName`) | The name of the event.                    |
+| `blockIds`  | number                     | The ids of the blocks to scan for events. |
+
+### Returns after decoding
+
+| Type                             | Description                                    |
+| -------------------------------- | ---------------------------------------------- |
+| [[EventObject]](##`EventObject`) | An array of events that matched the eventName. |
+
+### Usage
+
+```javascript
+import * as fcl from "@onflow/fcl";
+
+const events = await fcl
+  .send([
+    fcl.getEventsAtBlockIds(
+      "A.7e60df042a9c0868.FlowToken.TokensWithdrawn",
+      [
+        "c4f239d49e96d1e5fbcf1f31027a6e582e8c03fcd9954177b7723fdb03d938c7",
+        "5dbaa85922eb194a3dc463c946cc01c866f2ff2b88f3e59e21c0d8d00113273f",
+      ]
     ),
   ])
   .then(fcl.decode);
@@ -693,15 +763,49 @@ A template builder to use a Cadence script for an interaction.
 
 ### Arguments
 
-| Name   | Type   | Description                   |
-| ------ | ------ | ----------------------------- |
-| `CODE` | string | Should be valid Cadence code. |
+| Name   | Type   | Description                     |
+| ------ | ------ | ------------------------------- |
+| `CODE` | string | Should be valid Cadence script. |
 
 ### Returns
 
 | Type                           | Description                                   |
 | ------------------------------ | --------------------------------------------- |
 | [Interaction](##`Interaction`) | An interaction containing the code passed in. |
+
+### Usage
+
+```javascript
+import * as fcl from "@onflow/fcl";
+
+const code = `
+  pub fun main(): Int {
+    return 5 + 4
+  }
+`;
+const answer = await fcl.send([fcl.script(code)]).then(fcl.decode);
+console.log(answer); // 9
+```
+
+---
+
+## `fcl.transaction(CODE)`
+
+A template builder to use a Cadence transaction for an interaction.
+:warning: Must be used with `fcl.payer`, `fcl.proposer`, `fcl.authorizations` to produce a valid interaction before sending to the chain.
+:loudspeaker: Use with `fcl.args[...]` to pass in arguments dynamically.
+
+### Arguments
+
+| Name   | Type   | Description                            |
+| ------ | ------ | -------------------------------------- |
+| `CODE` | string | Should be valid a Cadence transaction. |
+
+### Returns
+
+| Type                           | Description                                   |
+| ------------------------------ | --------------------------------------------- |
+| [Partial Interaction](##`Interaction`) | An partial interaction containing the code passed in. Further builders are required to complete the interaction. See description. |
 
 ### Usage
 
@@ -801,6 +905,16 @@ The JSON representation of a key on the Flow blockchain.
 | `collectionGuarantees` | [] | :tomato: TODO |
 | `blockSeals` | [[SealedBlockObject]](##`SealedBlockObject`) | The details of which nodes executed and sealed the blocks. |
 | `signatures` | Uint8Array([numbers]) | All signatures. |
+
+## `BlockHeaderObject`
+
+The subset of the [BlockObject](##`BlockObject`) containing only the header values of a block.
+| Key | Value Type | Description |
+| ---- | ---------- | ----------- |
+| `id` | string | The id of the block. |
+| `parentId` | string | The id of the parent block. |
+| `height` | number | The height of the block. |
+| `timestamp` | object | Contains time related fields. |
 
 ## `ResponseObject`
 

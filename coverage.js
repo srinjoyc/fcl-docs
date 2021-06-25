@@ -2,12 +2,12 @@ import "./default-config"
 import "./temp"
 export {VERSION} from "./VERSION"
 export {query} from "./exec/query"
-export {serialize} from "./serialize"
+export {serialize} from "./serialize" // TODO: what does this do?
 export {transaction as tx} from "./transaction"
 export {events} from "./events"
 
 import {currentUser} from "./current-user"
-export {currentUser}
+export {currentUser} // done
 
 export const authenticate = opts => currentUser().authenticate(opts) // done
 export const unauthenticate = () => currentUser().unauthenticate() // done
@@ -23,7 +23,7 @@ export const authz = currentUser().authorization // done
 import * as types from "@onflow/types"
 export const t = types
 
-export {config} from "@onflow/config" // where to find more docs on this?
+export {config} from "@onflow/config" // done
 export {send} from "@onflow/sdk" // done 
 export {decode} from "@onflow/sdk" // done
 export {account} from "@onflow/sdk" // //  include in different section // exact same as getAccount?? => Let's just talk about builders (SHORT HAND FUNCTIONS)
@@ -43,24 +43,24 @@ export {template as cdc} from "@onflow/util-template" // deprecated // which one
 // is there a way to split this up into logical groupings to make it easier to parse?
 
 // template builders
-export {transaction} from "@onflow/sdk"
-export {script} from "@onflow/sdk"
+export {transaction} from "@onflow/sdk" // done
+export {script} from "@onflow/sdk" // done 
 // REPLACE 'RETURNS' WITH 'RESPONSE' (for all decoding)
 // explain the 'send' order 
 // query builders
 export {ping} from "@onflow/sdk" // not
-export {atBlockHeight} from "@onflow/sdk"
+export {atBlockHeight} from "@onflow/sdk" //
 export {atBlockId} from "@onflow/sdk"
 export {getAccount} from "@onflow/sdk" // done
-export {getEvents} from "@onflow/sdk" // not used on kitty-items or flow port
+export {getEvents} from "@onflow/sdk" // deprecated for getEventsAtBlockHeightRange
 export {getEventsAtBlockHeightRange} from "@onflow/sdk" // done
 export {getEventsAtBlockIds} from "@onflow/sdk" // not used
 export {getLatestBlock} from "@onflow/sdk" // deprecated for => getBlock()
-export {getBlock} from "@onflow/sdk" // requires two builders to get block at a particular height
-export {getBlockHeader} from "@onflow/sdk"
-export {getBlockById} from "@onflow/sdk"  // deprecated
-export {getBlockByHeight} from "@onflow/sdk" // deprecated
-export {getCollection} from "@onflow/sdk"
+export {getBlock} from "@onflow/sdk" // done
+export {getBlockHeader} from "@onflow/sdk" // done
+export {getBlockById} from "@onflow/sdk"  // deprecated for getBlock() + atBlockId()
+export {getBlockByHeight} from "@onflow/sdk" // deprecated use getBlock() + atBlockHeight()
+export {getCollection} from "@onflow/sdk" // if you need to get info before it has been processed as a block
 export {getTransactionStatus} from "@onflow/sdk"
 export {getTransaction} from "@onflow/sdk"
 
