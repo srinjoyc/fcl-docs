@@ -285,9 +285,10 @@ const response = fcl.send([
 
 ---
 
-# Current User
+## Current User
 
 Holds the [current user](##`CurrentUserObject`) if set and offers a set of functions to manage the authentication and authorization of the user.
+> :warning: **The following methods can only be used client side.**
 
 ## Methods
 
@@ -296,8 +297,6 @@ Holds the [current user](##`CurrentUserObject`) if set and offers a set of funct
 ## `fcl.currentUser().subscribe(callback)`
 
 A method to use with your state management tool of choice to set and unset the current user based on the authentication functions.
-
-> :warning: **This method can only be used client side.**
 
 ### Arguments
 
@@ -340,6 +339,24 @@ export function AuthCluster() {
 
 ---
 
+## `fcl.currentUser().authenticate()`
+
+Equivalent to `fcl.authenticate()` **(recommended)**.
+
+---
+
+## `fcl.currentUser().unauthenticate()`
+
+Equivalent to `fcl.unauthenticate()`  **(recommended)**.
+
+---
+
+## `fcl.currentUser().authorization()`
+
+Equivalent to `fcl.authz`  **(recommended)**.
+
+---
+
 ## `fcl.currentUser().snapshot()`
 
 :tomato: TODO
@@ -349,24 +366,6 @@ export function AuthCluster() {
 ## `fcl.currentUser().signUserMessage(msg, opts)`
 
 :tomato: TODO
-
----
-
-## `fcl.currentUser().authenticate()`
-
-Equivalent to `fcl.authenticate()` (recommended).
-
----
-
-## `fcl.currentUser().unauthenticate()`
-
-Equivalent to `fcl.unauthenticate()` (recommended).
-
----
-
-## `fcl.currentUser().authorization()`
-
-Equivalent to `fcl.authz` (recommended).
 
 ---
 
@@ -485,14 +484,14 @@ assert(typeof decoded === "number");
 
 ---
 
-# Builders
+## Builders
 
 These methods fill out various portions of a transaction or script template in order to
 build, resolve, and send it to the blockchain. A valid populated template is referred to as an [Interaction](##`Interaction`).
 
-:warning: **These methods must be used with `fcl.send([...builders])`**
+:warning: **These methods must be used with `fcl.send([...builders]).then(fcl.decode)`**
 
-## Query Builders
+### Query Builders
 
 ## `fcl.getAccount(address)`
 
@@ -562,6 +561,60 @@ const latestSealedBlock = await fcl
 
 ---
 
+## `fcl.atBlockHeight(blockHeight)`
+
+A builder function that returns a partial interaction to a block at a specific height.
+:warning: Use with other interactions like [`fcl.getBlock()`](<##`fcl.getBlock(isSealed)`>) to get a full interaction at the specified block height.
+
+### Arguments
+
+| Name          | Type   | Description                                            |
+| ------------- | ------ | ------------------------------------------------------ |
+| `blockHeight` | number | The height of the block to execute the interaction at. |
+
+### Returns
+
+| Type                                   | Description                                                                                                 |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| [Partial Interaction](##`Interaction`) | A partial interaction to be paired with another interaction such as `fcl.getBlock()` or `fcl.getAccount()`. |
+
+### Usage
+
+```javascript
+import * as fcl from "@onflow/fcl";
+
+await fcl.send([fcl.getBlock(), fcl.atBlockHeight(123)]).then(fcl.decode);
+```
+
+---
+
+## `fcl.atBlockId(blockId)`
+
+A builder function that returns a partial interaction to a block at a specific block ID.
+:warning: Use with other interactions like [`fcl.getBlock()`](<##`fcl.getBlock(isSealed)`>) to get a full interaction at the specified block ID.
+
+### Arguments
+
+| Name      | Type   | Description                                        |
+| --------- | ------ | -------------------------------------------------- |
+| `blockId` | string | The ID of the block to execute the interaction at. |
+
+### Returns
+
+| Type                                   | Description                                                                                                 |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| [Partial Interaction](##`Interaction`) | A partial interaction to be paired with another interaction such as `fcl.getBlock()` or `fcl.getAccount()`. |
+
+### Usage
+
+```javascript
+import * as fcl from "@onflow/fcl";
+
+await fcl.send([fcl.getBlock(), fcl.atBlockId("23232323232")]).then(fcl.decode);
+```
+
+---
+
 ## `fcl.getBlockHeader()`
 
 A builder function that returns the interaction to get a block header.
@@ -583,20 +636,6 @@ const latestBlockHeader = await fcl
   .then(fcl.decode);
 ```
 
----
-
-## `fcl.getLatestBlock(isSealed)` - Deprecated
-
-Use [`fcl.getBlock`](##`fcl.getBlock`).
-
----
-
-## `fcl.getEvents(eventName,fromBlock,toBlock)` - Deprecated
-
-Use [`fcl.getEventsAtBlockHeightRange`](##`fcl.getEventsAtBlockHeightRange`).
-
----
-
 ## `fcl.getEventsAtBlockHeightRange(eventName,fromBlockHeight,toBlockHeight)`
 
 A builder function that returns all instances of a particular event (by name) within a height range.
@@ -610,7 +649,6 @@ A builder function that returns all instances of a particular event (by name) wi
 | `eventName`       | [EventName](##`EventName`) | The name of the event.                                           |
 | `fromBlockHeight` | number                     | The height of the block to start looking for events (inclusive). |
 | `toBlockHeight`   | number                     | The height of the block to stop looking for events (inclusive).  |
-
 
 ### Returns after decoding
 
@@ -662,18 +700,362 @@ import * as fcl from "@onflow/fcl";
 
 const events = await fcl
   .send([
-    fcl.getEventsAtBlockIds(
-      "A.7e60df042a9c0868.FlowToken.TokensWithdrawn",
-      [
-        "c4f239d49e96d1e5fbcf1f31027a6e582e8c03fcd9954177b7723fdb03d938c7",
-        "5dbaa85922eb194a3dc463c946cc01c866f2ff2b88f3e59e21c0d8d00113273f",
-      ]
+    fcl.getEventsAtBlockIds("A.7e60df042a9c0868.FlowToken.TokensWithdrawn", [
+      "c4f239d49e96d1e5fbcf1f31027a6e582e8c03fcd9954177b7723fdb03d938c7",
+      "5dbaa85922eb194a3dc463c946cc01c866f2ff2b88f3e59e21c0d8d00113273f",
+    ]),
+  ])
+  .then(fcl.decode);
+```
+
+---
+
+## `fcl.getTransactionStatus(transactionId)`
+
+A builder function that returns the status of transaction.
+
+:warning: The transactionID provided must be from the current spork.
+:loudspeaker: Considering [subscribing to the transaction from `fcl.tx(id)`](<##`fcl.tx(transactionId)>) instead of calling this method directly.
+
+### Arguments
+
+| Name            | Type   | Description                                                                                                                           |
+| --------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `transactionId` | string | The transactionID returned when submitting a transaction. Example: `9dda5f281897389b99f103a1c6b180eec9dac870de846449a302103ce38453f3` |
+
+### Returns after decoding
+
+| Name           | Type                                       | Description                                                     |
+| -------------- | ------------------------------------------ | --------------------------------------------------------------- |
+| `events`       | [[EventObject]](##`EventObject`)           | An array of events that were emitted during the transaction.                  |
+| `status`       | [TransactionStatus](##`TransactionStatuses`) | The status of the transaction on the blockchain.                |
+| `errorMessage` | string                                     | An error message if it exists. Default is an empty string `''`. |
+| `statusCode`   | [GRPCStatus](##`GRPCStatuses`)        | The status from the GRPC response.                              |
+
+### Usage
+
+```javascript
+import * as fcl from "@onflow/fcl";
+
+const status = await fcl
+  .send([
+    fcl.getTransactionStatus(
+      "9dda5f281897389b99f103a1c6b180eec9dac870de846449a302103ce38453f3"
     ),
   ])
   .then(fcl.decode);
 ```
 
 ---
+
+## `fcl.getTransaction(transactionId)`
+
+A builder function that returns a [transaction object](##TransactionObject>) once decoded.
+
+:warning: The transactionID provided must be from the current spork.
+:loudspeaker: Considering using [`fcl.tx(id).onceSealed()`](<##`fcl.tx(transactionId)>) instead of calling this method directly.
+
+### Arguments
+
+| Name            | Type   | Description                                                                                                                           |
+| --------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `transactionId` | string | The transactionID returned when submitting a transaction. Example: `9dda5f281897389b99f103a1c6b180eec9dac870de846449a302103ce38453f3` |
+
+### Returns after decoding
+
+| Name           | Type                                       | Description                                                     |
+| -------------- | ------------------------------------------ | --------------------------------------------------------------- |
+| `events`       | [[EventObject]](##`EventObject`)           | An array of events that matched the eventName.                  |
+| `status`       | [TransactionStatus](##`TransactionStatus`) | The status of the transaction on the blockchain.                |
+| `errorMessage` | string                                     | An error message if it exists. Default is an empty string `''`. |
+| `statusCode`   | [GRPCStatus](##`TransactionStatus`)        | The status from the GRPC response.                              |
+
+### Usage
+
+```javascript
+import * as fcl from "@onflow/fcl";
+
+const tx = await fcl
+  .send([
+    fcl.getTransaction(
+      "9dda5f281897389b99f103a1c6b180eec9dac870de846449a302103ce38453f3"
+    ),
+  ])
+  .then(fcl.decode);
+```
+
+---
+
+## `fcl.getEvents(eventName,fromBlock,toBlock)` - Deprecated
+
+Use [`fcl.getEventsAtBlockHeightRange`](##`fcl.getEventsAtBlockHeightRange`) or [`fcl.getEventsAtBlockIds`](##`fcl.getEventsAtBlockIds`).
+
+---
+
+## `fcl.getLatestBlock(isSealed)` - Deprecated
+
+Use [`fcl.getBlock`](##`fcl.getBlock`).
+
+---
+## `fcl.getBlockById(blockId)` - Deprecated
+
+Use [`fcl.getBlock`](##`fcl.getBlock`) and [`fcl.atBlockId`](##`fcl.atBlockId`).
+
+---
+## `fcl.getBlockByHeight(blockHeight)` - Deprecated
+
+Use [`fcl.getBlock`](##`fcl.getBlock`) and [`fcl.atBlockHeight`](##`fcl.atBlockHeight`).
+
+---
+
+### Query the blockchain with Cadence
+If you want to run arbitrary Cadence scripts on the blockchain, these methods offer a convenient way to do so **without having to build interactions**.
+
+## `fcl.query({...options})`
+### Options
+*Pass in the following as a single object with the following keys*
+
+| Key   | Type   | Description                     |
+| ------ | ------ | ------------------------------- |
+| `transactionId` | string | A valid transaction id. |
+---
+
+## Transaction Status Utility
+
+## `fcl.tx(transactionId)`
+
+A utility function that lets you set the transaction to get subsequent status updates (via polling) and the finalized result once available.
+:warning: The poll rate is set at `2500ms` and will update at that interval until transaction is sealed.
+
+### Arguments
+
+| Name   | Type   | Description                     |
+| ------ | ------ | ------------------------------- |
+| `transactionId` | string | A valid transaction id. |
+
+### Returns
+
+| Name   | Type   | Description                     |
+| ------ | ------ | ------------------------------- |
+| `snapshot()` | function | Returns the current state of the transaction. |
+| `subscribe(cb)` | function | Calls the `cb` passed in with the new transaction on a status change. |
+| `onceFinalized()` | function | Provides the transaction once status `2` is returned. See [Tranasaction Statuses](##`TransactionStatuses`). |
+| `onceExecuted()` | function |Provides the transaction once status `3` is returned. See [Tranasaction Statuses](##`TransactionStatuses`).|
+| `onceSealed()` | function | Provides the transaction once status `4` is returned. See [Tranasaction Statuses](##`TransactionStatuses`). |
+
+### Usage
+
+```javascript
+import * as fcl from "@onflow/fcl";
+
+const [txStatus, setTxStatus] = useState(null)
+useEffect(() => fcl.tx(txId).subscribe(setTxStatus))
+```
+### Examples
+- [React Effect to get the transaction status on submit](https://github.com/onflow/flow-port/blob/staging/src/pages/transaction-status.js#L158-L183)
+- Kitty items example :tomato: Fill in
+
+---
+## Event Polling Utility
+
+## `fcl.events(eventName)`
+
+A utility function that lets you set the transaction to get subsequent status updates (via polling) and the finalized result once available.
+:warning: The poll rate is set at `10000ms` and will update at that interval for getting new events.
+
+### Arguments
+
+| Name   | Type   | Description                     |
+| ------ | ------ | ------------------------------- |
+| `eventName` | string | A valid event name. |
+
+### Returns
+
+| Name   | Type   | Description                     |
+| ------ | ------ | ------------------------------- |
+| `subscribe(cb)` | function | Calls the `cb` passed in with the new event.|
+
+### Usage
+
+```javascript
+import * as fcl from "@onflow/fcl";
+
+  const {eventKey} = useParams()
+  const [events, setEvents] = useState([])
+  useEffect(
+    () =>
+      fcl.events(eventKey).subscribe((event) => {
+        setEvents((oldEvents) => [...oldEvents, event])
+      }),
+    [eventKey]
+  )
+```
+### Examples
+- Flow view source example :tomato: Fill in
+
+---
+# Types
+
+## `Builders`
+
+Builders are modular functions that can be coupled together with `fcl.send([...builders])` to create an [Interaction](##`Interactions`). The builders needed to create an interaction depend on the script or transaction that is being sent.
+
+## `Interactions`
+
+An interaction is a a template containing a valid string of Cadence code that either a script or a transaction. Please read the guide on [FCL Interactions](https://github.com/onflow/kitty-items/blob/master/web/src/hooks/use-current-user.hook.js).
+
+## `AuthorizationObject`
+
+This type conforms to the interface required for FCL to authorize transaction on behalf o the current user.
+| Key | Value Type | Description |
+| ---- | ---------- | ----------- |
+| `addr` | [Address](##`Address`) | The address of the authorizer |
+| `signingFunction` | function | A function that allows FCL to sign using the authorization details and produce a valid signature. |
+| `keyId` | number | The index of the key to use during authorization. (Multiple keys on an account is possible). |
+| `sequenceNum` | number | A number that is incremented per transaction using they keyId. |
+
+## `AccountObject`
+
+The JSON representation of an account on the Flow blockchain.
+| Key | Value Type | Description |
+| ---- | ---------- | ----------- |
+| `address` | [Address](##`Address`) | The address of the account |
+| `balance` | number | The FLOW balance of the account in 10\*6. |
+| `code` | [Code](##`Code`) | ???? |
+| `contracts` | Object: [Contract](##`contract`) | An object with keys as the contract name deployed and the value as the the cadence string. |
+| `keys` | [[KeyObject]](##`Key`) | Any contracts deployed to this account. |
+
+## `Address`
+
+| Value Type        | Description                                                                                                                     |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| string(formatted) | A valid Flow address should be 16 characters in length. <br>A `0x` prefix is optional during inputs. <br>eg. `f8d6e0586b0a20c1` |
+
+## `ArgumentObject`
+
+An argument object created by `fcl.arg(value,type)`
+| Key | Value Type | Description |
+| ---- | ---------- | ----------- |
+| `value` | any | Any value to be used as an argument to a builder. |
+| `xform` | [FType](##`FType`) | Any of the supported types on Flow. |
+
+## `EventName`
+
+| Value Type        | Description                                                                                                                        |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| string(formatted) | A event name in Flow must follow the format `A.{AccountAddress}.{ContractName}.{EventName}` <br>eg. `A.ba1132bc08f82fe2.Debug.Log` |
+
+## `Contract`
+
+| Value Type        | Description                                          |
+| ----------------- | ---------------------------------------------------- |
+| string(formatted) | A formatted string that is a valid cadence contract. |
+
+## `KeyObject`
+
+This is the JSON representation of a key on the Flow blockchain.
+| Key | Value Type | Description |
+| ---- | ---------- | ----------- |
+| `index` | number | The address of the account |
+| `publicKey` | string | The FLOW balance of the account in 10\*6. |
+| `signAlgo` | number | An index referring to one of `ECDSA_P256` or `ECDSA_secp256k1` |
+| `hashAlgo` | number | An index referring to one of `SHA2_256` or `SHA3_256` |
+| `weight` | number | A number between 1 and 1000 indicating the relative weight to other keys on the account. |
+| `sequenceNumber` | number | This number is incremented for every transaction signed using this key. |
+| `revoked` | boolean | If this key has been disabled for use. |
+
+## `BlockObject`
+
+The JSON representation of a key on the Flow blockchain.
+| Key | Value Type | Description |
+| ---- | ---------- | ----------- |
+| `id` | string | The id of the block. |
+| `parentId` | string | The id of the parent block. |
+| `height` | number | The height of the block. |
+| `timestamp` | object | Contains time related fields. |
+| `collectionGuarantees` | [] | :tomato: TODO |
+| `blockSeals` | [[SealedBlockObject]](##`SealedBlockObject`) | The details of which nodes executed and sealed the blocks. |
+| `signatures` | Uint8Array([numbers]) | All signatures. |
+
+## `BlockHeaderObject`
+
+The subset of the [BlockObject](##`BlockObject`) containing only the header values of a block.
+| Key | Value Type | Description |
+| ---- | ---------- | ----------- |
+| `id` | string | The id of the block. |
+| `parentId` | string | The id of the parent block. |
+| `height` | number | The height of the block. |
+| `timestamp` | object | Contains time related fields. |
+
+## `ResponseObject`
+
+The format of all responses in FCL returned from `fcl.send(...)`. For full details on the values and descriptions of the keys, view [here](https://github.com/onflow/flow-js-sdk/tree/master/packages/sdk/src/response).
+| Key | 
+| ---- |
+| `tag` |
+| `transaction` |
+| `transactionStatus` |
+| `transactionId` |
+| `encodedData` |
+| `events` |
+| `account` |
+| `block` |
+| `blockHeader` |
+| `latestBlock` |
+| `collection` |
+
+## `Event Object`
+
+The format of all responses in FCL returned from `fcl.send(...)`
+| Key | Value Type | Description |
+| ---- | ---------- | ----------- |
+| `tag` | string | :tomato: TODO |
+| `transaction` | [Transaction](##`Transaction`) | :tomato: TODO |
+| `transactionStatus` | [TransactionStatus](##`TransactionStatus`) | :tomato: TODO |
+| `transactionId` | [TransactionId](##`TransactionId`) | :tomato: TODO |
+| `encodedData` | object | :tomato: TODO |
+| `events` | object | :tomato: TODO |
+| `account` | object | :tomato: TODO |
+| `block` | object | :tomato: TODO |
+| `blockHeader` | object | :tomato: TODO |
+| `latestBlock` | object | :tomato: TODO |
+| `collection` | object | :tomato: TODO |
+
+## `Transaction Statuses`
+
+The status of a transaction will depend on the Flow blockchain network and which phase it is in as it completes and is finalized.
+| Status Code | Description |
+| ----------- | ----------- |
+| `0` | Unknown
+| `1` | Transaction Pending - Awaiting Finalization
+| `2` | Transaction Finalized - Awaiting Execution
+| `3` | Transaction Executed - Awaiting Sealing
+| `4` | Transaction Sealed - Transaction Complete
+| `5` | Transaction Expired
+:tomato: TODO better descriptions.
+
+## `GRPC Statuses`
+
+The access node GRPC implementation follows the standard GRPC Core status code spec. View [here](https://grpc.github.io/grpc/core/md_doc_statuscodes.html).
+
+## `FType`
+
+FCL arguments must specify one of the following support types for each value passed in.
+| Type |
+| ---- |
+| `UInt` |
+| `UInt8` |
+| `UInt16` |
+| `UInt32` |
+| `UInt64` |
+:tomato: TODO add more
+
+
+
+
+
+---
+DEPRECATED, USE QUERY AND MUTATE.
 
 ## Utility Builders
 
@@ -803,9 +1185,9 @@ A template builder to use a Cadence transaction for an interaction.
 
 ### Returns
 
-| Type                           | Description                                   |
-| ------------------------------ | --------------------------------------------- |
-| [Partial Interaction](##`Interaction`) | An partial interaction containing the code passed in. Further builders are required to complete the interaction. See description. |
+| Type                                   | Description                                                                                                                    |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| [Partial Interaction](##`Interaction`) | An partial interaction containing the code passed in. Further builders are required to complete the interaction - see warning. |
 
 ### Usage
 
@@ -822,125 +1204,3 @@ console.log(answer); // 9
 ```
 
 ---
-
-# Types
-
-## `Builders`
-
-Builders are modular functions that can be coupled together with `fcl.send([...builders])` to create an [Interaction](##`Interactions`). The builders needed to create an interaction depend on the script or transaction that is being sent.
-
-## `Interactions`
-
-An interaction is a a template containing a valid string of Cadence code that either a script or a transaction. Please read the guide on [FCL Interactions](https://github.com/onflow/kitty-items/blob/master/web/src/hooks/use-current-user.hook.js).
-
-## `AuthorizationObject`
-
-This type conforms to the interface required for FCL to authorize transaction on behalf o the current user.
-| Key | Value Type | Description |
-| ---- | ---------- | ----------- |
-| `addr` | [Address](##`Address`) | The address of the authorizer |
-| `signingFunction` | function | A function that allows FCL to sign using the authorization details and produce a valid signature. |
-| `keyId` | number | The index of the key to use during authorization. (Multiple keys on an account is possible). |
-| `sequenceNum` | number | A number that is incremented per transaction using they keyId. |
-
-## `AccountObject`
-
-The JSON representation of an account on the Flow blockchain.
-| Key | Value Type | Description |
-| ---- | ---------- | ----------- |
-| `address` | [Address](##`Address`) | The address of the account |
-| `balance` | number | The FLOW balance of the account in 10\*6. |
-| `code` | [Code](##`Code`) | ???? |
-| `contracts` | Object: [Contract](##`contract`) | An object with keys as the contract name deployed and the value as the the cadence string. |
-| `keys` | [[KeyObject]](##`Key`) | Any contracts deployed to this account. |
-
-## `Address`
-
-| Value Type        | Description                                                                                                                     |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| string(formatted) | A valid Flow address should be 16 characters in length. <br>A `0x` prefix is optional during inputs. <br>eg. `f8d6e0586b0a20c1` |
-
-## `ArgumentObject`
-
-An argument object created by `fcl.arg(value,type)`
-| Key | Value Type | Description |
-| ---- | ---------- | ----------- |
-| `value` | any | Any value to be used as an argument to a builder. |
-| `xform` | [FType](##`FType`) | Any of the supported types on Flow. |
-
-## `EventName`
-
-| Value Type        | Description                                                                                                                        |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| string(formatted) | A event name in Flow must follow the format `A.{AccountAddress}.{ContractName}.{EventName}` <br>eg. `A.ba1132bc08f82fe2.Debug.Log` |
-
-## `Contract`
-
-| Value Type        | Description                                          |
-| ----------------- | ---------------------------------------------------- |
-| string(formatted) | A formatted string that is a valid cadence contract. |
-
-## `KeyObject`
-
-This is the JSON representation of a key on the Flow blockchain.
-| Key | Value Type | Description |
-| ---- | ---------- | ----------- |
-| `index` | number | The address of the account |
-| `publicKey` | string | The FLOW balance of the account in 10\*6. |
-| `signAlgo` | number | An index referring to one of `ECDSA_P256` or `ECDSA_secp256k1` |
-| `hashAlgo` | number | An index referring to one of `SHA2_256` or `SHA3_256` |
-| `weight` | number | A number between 1 and 1000 indicating the relative weight to other keys on the account. |
-| `sequenceNumber` | number | This number is incremented for every transaction signed using this key. |
-| `revoked` | boolean | If this key has been disabled for use. |
-
-## `BlockObject`
-
-The JSON representation of a key on the Flow blockchain.
-| Key | Value Type | Description |
-| ---- | ---------- | ----------- |
-| `id` | string | The id of the block. |
-| `parentId` | string | The id of the parent block. |
-| `height` | number | The height of the block. |
-| `timestamp` | object | Contains time related fields. |
-| `collectionGuarantees` | [] | :tomato: TODO |
-| `blockSeals` | [[SealedBlockObject]](##`SealedBlockObject`) | The details of which nodes executed and sealed the blocks. |
-| `signatures` | Uint8Array([numbers]) | All signatures. |
-
-## `BlockHeaderObject`
-
-The subset of the [BlockObject](##`BlockObject`) containing only the header values of a block.
-| Key | Value Type | Description |
-| ---- | ---------- | ----------- |
-| `id` | string | The id of the block. |
-| `parentId` | string | The id of the parent block. |
-| `height` | number | The height of the block. |
-| `timestamp` | object | Contains time related fields. |
-
-## `ResponseObject`
-
-The format of all responses in FCL returned from `fcl.send(...)`
-| Key | Value Type | Description |
-| ---- | ---------- | ----------- |
-| `tag` | string | :tomato: TODO |
-| `transaction` | [Transaction](##`Transaction`) | :tomato: TODO |
-| `transactionStatus` | [TransactionStatus](##`TransactionStatus`) | :tomato: TODO |
-| `transactionId` | [TransactionId](##`TransactionId`) | :tomato: TODO |
-| `encodedData` | object | :tomato: TODO |
-| `events` | object | :tomato: TODO |
-| `account` | object | :tomato: TODO |
-| `block` | object | :tomato: TODO |
-| `blockHeader` | object | :tomato: TODO |
-| `latestBlock` | object | :tomato: TODO |
-| `collection` | object | :tomato: TODO |
-
-## `FType`
-
-FCL arguments must specify one of the following support types for each value passed in.
-| Type |
-| ---- |
-| `UInt` |
-| `UInt8` |
-| `UInt16` |
-| `UInt32` |
-| `UInt64` |
-:tomato: TODO add more

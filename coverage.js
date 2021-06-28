@@ -49,20 +49,20 @@ export {script} from "@onflow/sdk" // done
 // explain the 'send' order 
 // query builders
 export {ping} from "@onflow/sdk" // not
-export {atBlockHeight} from "@onflow/sdk" //
-export {atBlockId} from "@onflow/sdk"
+export {atBlockHeight} from "@onflow/sdk" // done
+export {atBlockId} from "@onflow/sdk"// done 
 export {getAccount} from "@onflow/sdk" // done
-export {getEvents} from "@onflow/sdk" // deprecated for getEventsAtBlockHeightRange
+export {getEvents} from "@onflow/sdk" // done - deprecated for getEventsAtBlockHeightRange
 export {getEventsAtBlockHeightRange} from "@onflow/sdk" // done
-export {getEventsAtBlockIds} from "@onflow/sdk" // not used
-export {getLatestBlock} from "@onflow/sdk" // deprecated for => getBlock()
+export {getEventsAtBlockIds} from "@onflow/sdk" // done
+export {getLatestBlock} from "@onflow/sdk" // done - deprecated for => getBlock()
 export {getBlock} from "@onflow/sdk" // done
 export {getBlockHeader} from "@onflow/sdk" // done
 export {getBlockById} from "@onflow/sdk"  // deprecated for getBlock() + atBlockId()
 export {getBlockByHeight} from "@onflow/sdk" // deprecated use getBlock() + atBlockHeight()
-export {getCollection} from "@onflow/sdk" // if you need to get info before it has been processed as a block
-export {getTransactionStatus} from "@onflow/sdk"
-export {getTransaction} from "@onflow/sdk"
+export {getCollection} from "@onflow/sdk" // TODO: NEED HELP HERE - if you need to get info before it has been processed as a block
+export {getTransactionStatus} from "@onflow/sdk" // done 
+export {getTransaction} from "@onflow/sdk" // done
 
 // utility builders
 export {authorizations, authorization} from "@onflow/sdk" // todo
