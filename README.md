@@ -265,6 +265,15 @@ Holds the [current user](##`CurrentUserObject`) if set and offers a set of funct
 ## Methods
 
 ---
+## `fcl.currentUser()`
+
+### Returns
+
+ Type     | Description                                                                                                                               |
+ -------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+ [CurrentUserObject](##`CurrentUserObject`) | Returns the [current user](##`CurrentUserObject`) object. |
+
+---
 
 ## `fcl.currentUser().subscribe(callback)`
 
