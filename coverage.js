@@ -26,8 +26,8 @@ export const t = types
 export {config} from "@onflow/config" // done
 export {send} from "@onflow/sdk" // done 
 export {decode} from "@onflow/sdk" // done
-export {account} from "@onflow/sdk" // //  include in different section // exact same as getAccount?? => Let's just talk about builders (SHORT HAND FUNCTIONS)
-export {latestBlock} from "@onflow/sdk"// include in different section  // exact same as getLatestBlock?? =>  Let's just talk about builders (SHORT HAND FUNCTIONS)
+export {account} from "@onflow/sdk" // done //  include in different section // exact same as getAccount?? => Let's just talk about builders (SHORT HAND FUNCTIONS)
+export {latestBlock} from "@onflow/sdk"// done include in different section  // exact same as getLatestBlock?? =>  Let's just talk about builders (SHORT HAND FUNCTIONS)
 export {isOk, isBad, why, pipe, build} from "@onflow/sdk" // what to document here? -> Should we cover build and pipe?
 // isOk and isBad and why is going to be deprecated.
 // build, pipe => Pipe takes an array and pushes through the whole array (given a ds and spits out a ds)
@@ -48,7 +48,7 @@ export {script} from "@onflow/sdk" // done
 // REPLACE 'RETURNS' WITH 'RESPONSE' (for all decoding)
 // explain the 'send' order 
 // query builders
-export {ping} from "@onflow/sdk" // not
+export {ping} from "@onflow/sdk" // TODO
 export {atBlockHeight} from "@onflow/sdk" // done
 export {atBlockId} from "@onflow/sdk"// done 
 export {getAccount} from "@onflow/sdk" // done
@@ -74,6 +74,6 @@ export {ref} from "@onflow/sdk" // todo
 export {params, param} from "@onflow/sdk" // todo
 export {validator} from "@onflow/sdk" // todo
 export {invariant} from "@onflow/sdk" // todo
-
+// TODO: Custom authorization functions
 
 // Interaction Types => Transaction or Script

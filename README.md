@@ -14,8 +14,7 @@ FCL has a mechanism that lets you configure various aspects of FCL. When you mov
 
 ## Setting Configuration Values
 
-Values only need to be set once. We recomend doing this once and as early in the life cycle as possible.
-To set a configuation value, the `put` method on the `config` instance needs to be called, the `put` method returns the `config` instance so they can be chained.
+Values only need to be set once. We recommend doing this once and as early in the life cycle as possible. To set a configuration value, the `put` method on the `config` instance needs to be called, the `put` method returns the `config` instance so they can be chained.
 
 ```javascript
 import * as fcl from "@onflow/fcl";
@@ -28,7 +27,7 @@ fcl
 
 ## Getting Configuration Values
 
-The `config` instance has an asynchronous `get` method. You can also pass it a fallback value incase the configuration state does not include what you are wanting.
+The `config` instance has an **asynchronous** `get` method. You can also pass it a fallback value.
 
 ```javascript
 import * as fcl from "@onflow/fcl";
@@ -50,14 +49,14 @@ addStuff().then((d) => console.log(d)); // 13 (5 + 7 + 1)
 
 ## Common Configuration Keys
 
-| Name                        | Example                                              | Description                                                                                               |
-| --------------------------- | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `accessNode.api` (required) | `https://access-testnet.onflow.org`                  | API URL for the Flow Blockchain Access Node you want to be communicating with. See list here.             |
-| `env`                       | `testnet`                                            | Used in conjunction with stored interactions. Possible values: `local`, `canarynet`, `testnet`, `mainnet` |
-| `discovery.wallet`          | `https://fcl-discovery.onflow.org/testnet/authn`     | Points FCL at the Wallet or Wallet Discovery mechanism.                                                   |
-| `app.detail.title`          | `Cryptokitties`                                      | Your applications title, can be requested by wallets and other services.                                  |
-| `app.detail.icon`           | `https://fcl-discovery.onflow.org/images/blocto.png` | Url for your applications icon, can be requested by wallets and other services.                           |
-| `challenge.handshake`       | DEPRECATED                                           | Use `discovery.wallet` instead.                                                                           |
+| Name                            | Example                                              | Description                                                                                               |
+| ------------------------------- | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `accessNode.api` **(required)** | `https://access-testnet.onflow.org`                  | API URL for the Flow Blockchain Access Node you want to be communicating with. See list here.             |
+| `env`                           | `testnet`                                            | Used in conjunction with stored interactions. Possible values: `local`, `canarynet`, `testnet`, `mainnet` |
+| `discovery.wallet`              | `https://fcl-discovery.onflow.org/testnet/authn`     | Points FCL at the Wallet or Wallet Discovery mechanism.                                                   |
+| `app.detail.title`              | `Cryptokitties`                                      | Your applications title, can be requested by wallets and other services.                                  |
+| `app.detail.icon`               | `https://fcl-discovery.onflow.org/images/blocto.png` | Url for your applications icon, can be requested by wallets and other services.                           |
+| `challenge.handshake`           | **DEPRECATED**                                       | Use `discovery.wallet` instead.                                                                           |
 
 ## Address replacement in scripts and transactions
 
@@ -66,30 +65,21 @@ Configuration keys that start with `0x` will be replaced in FCL scripts and tran
 ```javascript
 import * as fcl from "@onflow/fcl";
 
-fcl.config().put("0xFungibleToken", "0xf233dcee88fe0abe");
+fcl
+  .config()
+  .put("accessNode.api", "https://access-testnet.onflow.org")
+  .put("0xFlowToken", "0x7e60df042a9c0868");
 
 async function myScript() {
-  return fcl
-    .send([
-      fcl.script`
-      import FungibleToken from 0xFungibleToken // will be replaced with 0xf233dcee88fe0abe because of the configuration
+  return fcl.query({
+    cadence: `
+        import FlowToken from 0xFlowToken // will be replaced with 0xf233dcee88fe0abe because of the configuration
 
-      pub fun main() { /* Rest of the script goes here */ }
-    `,
-    ])
-    .then(fcl.decode);
-}
-
-async function myTransaction() {
-  return fcl
-    .send([
-      fcl.transaction`
-      import FungibleToken from 0xFungibleToken // will be replaced with 0xf233dcee88fe0abe because of the configuration
-
-      transaction { /* Rest of the transaction goes here */ }
-    `,
-    ])
-    .then(fcl.decode);
+        pub fun main(): UFix64 { 
+          return FlowToken.totalSupply  // arbitrary script that can access FlowToken interface
+        }
+      `,
+  });
 }
 ```
 
@@ -114,7 +104,7 @@ fcl
 
 # Wallet Interactions
 
-These methods allows dapps to interact with wallet services in order to authenticate the user and authorize transactions on their behalf.
+These methods allows dapps to interact with [supported wallet services](#TODO) in order to authenticate the user and authorize transactions on their behalf.
 
 ## Methods
 
@@ -124,7 +114,7 @@ These methods allows dapps to interact with wallet services in order to authenti
 
 > :warning: **This method can only be used client side.**
 
-Used to authenticate the current user via any wallet that supports FCL. Once called, FCL will initiate communication with the configured `discovery.wallet` endpoint which lets the user select a supported custodial wallet ([see supported wallets](#Wallets)). :tomato: Fix link
+Used to authenticate the current user via any wallet that supports FCL. Once called, FCL will initiate communication with the configured `discovery.wallet` endpoint which lets the user select a wallet to login or sign up with. Once the wallet provider has authenticated the user, FCL will set the values on the [current user](#TODO) object.
 
 ### Note
 
@@ -154,7 +144,7 @@ fcl.authenticate();
 
 > :warning: **This method can only be used client side.**
 
-Logs out the current user.
+Logs out the current user and sets the values on the [current user](#TODO) object to null.
 
 ### Note
 
@@ -169,6 +159,7 @@ fcl.config().put("accessNode.api", "https://access-testnet.onflow.org");
 fcl.authenticate();
 // ... somewhere else & sometime later
 fcl.unauthenticate();
+// fcl.currentUser().loggedIn === null
 ```
 
 ### Examples
@@ -208,23 +199,7 @@ fcl.reauthenticate();
 
 > :warning: **This method can only be used client side.**
 
-A **convenience method** that calls [`fcl.authenticate()`](<##`fcl.authenticate()`>)
-
-### Note
-
-:warning: The current user must be authenticated first.
-
-### Usage
-
-```javascript
-import * as fcl from "@onflow/fcl";
-// equivalent to fcl.authenticate()
-fcl.signUp();
-```
-
-### Examples
-
-- [React Hook to manage FCL authentication](https://github.com/onflow/kitty-items/blob/master/web/src/hooks/use-current-user.hook.js)
+A **convenience method** that calls [`fcl.authenticate()`](#fcltransactioncode).
 
 ---
 
@@ -234,23 +209,11 @@ fcl.signUp();
 
 A **convenience method** that calls [`fcl.authenticate()`](<##`fcl.authenticate()`>).
 
-### Usage
-
-```javascript
-import * as fcl from "@onflow/fcl";
-// equivalent to fcl.authenticate()
-fcl.login();
-```
-
-### Examples
-
-- [React Hook to manage FCL authentication](https://github.com/onflow/kitty-items/blob/master/web/src/hooks/use-current-user.hook.js)
-
 ---
 
 ## `fcl.authz`
 
-A **convenience method** that produces the needed authorization details for the current user to submit transactions to Flow.
+A **convenience method** that produces the needed authorization details for the current user to submit transactions to Flow. It defines a signing function that will be used with the current user's details to produce signatures to submit transactions.
 
 ### Returns
 
@@ -260,34 +223,43 @@ A **convenience method** that produces the needed authorization details for the 
 
 ### Usage
 
+**Note:** The `fcl.mutate` example below is showing how `fcl.authz` is used under the hood. The default values for `proposer`, `payer`, and `authorizations` are already `fcl.authz` so there is no need to include these parameters.
+
 ```javascript
 import * as fcl from "@onflow/fcl";
-// anywhere on the page
+// login somewhere before
+fcl.authenticate();
+// once logged in authz will produce values
 console.log(fcl.authz);
-// prints {addr, signingFunction, keyId, sequenceNum} from the current user.
+// prints {addr, signingFunction, keyId, sequenceNum} from the current authenticated user.
 
-const response = fcl.send([
-  fcl.transaction(CODE),
-  fcl.args([
-    fcl.arg(Number(itemID), t.UInt64),
-    fcl.arg(String(price), t.UFix64),
-  ]),
-  fcl.proposer(fcl.authz), // use as a alias when authorizing transactions for the current user
-  fcl.payer(fcl.authz),
-  fcl.authorizations([fcl.authz]),
-  fcl.limit(1000),
-]);
+const txId = await fcl.mutate({
+  cadence: `
+    import Profile from 0xba1132bc08f82fe2
+    
+    transaction(name: String) {
+      prepare(account: AuthAccount) {
+        account.borrow<&{Profile.Owner}>(from: Profile.privatePath)!.setName(name)
+      }
+    }
+  `,
+  args: (arg, t) => [arg("myName", t.String)],
+  proposer: fcl.authz,
+  payer: fcl.authz,
+  authorizations: [fcl.authz],
+});
 ```
 
 ### Examples
 
-- [Authorize a transaction](https://github.com/onflow/kitty-items/blob/master/web/src/hooks/use-current-user.hook.js)
+- [Node Service to authorize transactions using builders](https://github.com/onflow/kitty-items/blob/master/api/src/services/flow.ts) - it is reccomended to use `fcl.mutate` instead of `fcl.send(...).then(fcl.decode)`
 
 ---
 
 ## Current User
 
 Holds the [current user](##`CurrentUserObject`) if set and offers a set of functions to manage the authentication and authorization of the user.
+
 > :warning: **The following methods can only be used client side.**
 
 ## Methods
@@ -333,9 +305,11 @@ export function AuthCluster() {
 }
 ```
 
-### Examples
+---
 
-- [Auth Cluster in React](https://docs.onflow.org/flow-js-sdk/flow-app-quickstart/#authentication)
+## `fcl.currentUser().snapshot()`
+
+Returns the [current user](##`CurrentUserObject`) object. This is the same object that is set and available on [`fcl.currentUser().subscribe(callback)`](<##`fcl.currentUser().subscribe(callback)`>).
 
 ---
 
@@ -347,25 +321,19 @@ Equivalent to `fcl.authenticate()` **(recommended)**.
 
 ## `fcl.currentUser().unauthenticate()`
 
-Equivalent to `fcl.unauthenticate()`  **(recommended)**.
+Equivalent to `fcl.unauthenticate()` **(recommended)**.
 
 ---
 
 ## `fcl.currentUser().authorization()`
 
-Equivalent to `fcl.authz`  **(recommended)**.
-
----
-
-## `fcl.currentUser().snapshot()`
-
-:tomato: TODO
+Equivalent to `fcl.authz` **(recommended)**.
 
 ---
 
 ## `fcl.currentUser().signUserMessage(msg, opts)`
 
-:tomato: TODO
+:tomato: Coming soon.
 
 ---
 
@@ -373,9 +341,11 @@ Equivalent to `fcl.authz`  **(recommended)**.
 
 > :loudspeaker: **These methods can be used both on the client and server.**
 
-These methods allows dapps to interact directly with the Flow blockchain via a set of functions that currently use the [Access Node API](https://docs.onflow.org/access-api/) along with utilities to make it easier to send and decode responses. This set of functionality is similar to what is offered in other [SDKs](https://docs.onflow.org/sdks/) but allows for greater composability and customizability.
+These methods allows dapps to interact directly with the Flow blockchain via a set of functions that currently use the [Access Node API](https://docs.onflow.org/access-api/) along with some other utilities to make it easier to send and decode responses. This set of functionality is similar to what is offered in other [SDKs](https://docs.onflow.org/sdks/) but allows for greater composability and customizability.
 
-**In general, all interactions need to be built and sent to the chain via `fcl.send()` and then decoded via `fcl.decode()`.**
+**In general, all interactions need to be built and sent to the chain via `fcl.send()` and then decoded via `fcl.decode()` with the exception below.**
+
+:warning: **To simplify the send and decode pattern, FCL introduced [`fcl.query`](#TODO) and [`fcl.mutate`](#TODO)**. :tomato: UNSURE: Eventually, FCL will abstract most functionality offered by builders into these methods, but until then, there are still some cases where you will need to use builders - specifically for polling events, running scripts or transactions at a historical block, and ... :tomato: WHAT ELSE?.
 
 ## Methods
 
@@ -393,9 +363,9 @@ It consumes an array of [builders](https://google.ca) that are to be resolved an
 
 ### Arguments
 
-| Name       | Type                                | Description            |
-| ---------- | ----------------------------------- | ---------------------- |
-| `builders` | Array: [[...builders]](#`Builders`) | See builder functions. |
+| Name       | Type                      | Description            |
+| ---------- | ------------------------- | ---------------------- |
+| `builders` | [[Builders]](#`Builders`) | See builder functions. |
 
 ### Returns
 
@@ -423,7 +393,7 @@ const response = await fcl.send([
   fcl.payer(payer),
   fcl.limit(9999),
 ]);
-// note: response is encoded, call await fcl.decode(response) to get JSON
+// note: response contains several values (Cad)
 ```
 
 ### Examples
@@ -440,7 +410,7 @@ Decodes the response from `fcl.send()` into the appropriate JSON representation 
 
 ### Note
 
-:loudspeaker: To decode custom structs and define your own custom decoding, see [`tutorial`](#TODO).
+:loudspeaker: To define your own decoder, see [`tutorial`](#TODO).
 
 ### Arguments
 
@@ -497,17 +467,13 @@ build, resolve, and send it to the blockchain. A valid populated template is ref
 
 A builder function that returns the interaction to get an account by address.
 
+:warning: Consider using the pre-built interaction [`fcl.account(address)`](##`fcl.account(address)`) if you do not need to pair with any other builders.
+
 ### Arguments
 
 | Name      | Type                   | Description                                                                        |
 | --------- | ---------------------- | ---------------------------------------------------------------------------------- |
 | `address` | [Address](##`Address`) | Address of the user account with or without a prefix (both formats are supported). |
-
-### Returns
-
-| Type                           | Description                                                                |
-| ------------------------------ | -------------------------------------------------------------------------- |
-| [Interaction](##`Interaction`) | An interaction that contains the code and values needed to get an account. |
 
 ### Returns after decoding
 
@@ -533,7 +499,10 @@ const getAccount = async (address) => {
 ## `fcl.getBlock(isSealed)`
 
 A builder function that returns the interaction to get the latest block.
+
 :loudspeaker: Use with `fcl.atBlockId()` and `fcl.atBlockHeight()` when building the interaction to get information for older blocks.
+
+:warning: Consider using the pre-built interaction [`fcl.latestBlock(isSealed)`](##`fcl.latestBlock(isSealed)`) if you do not need to pair with any other builders.
 
 ### Arguments
 
@@ -564,6 +533,7 @@ const latestSealedBlock = await fcl
 ## `fcl.atBlockHeight(blockHeight)`
 
 A builder function that returns a partial interaction to a block at a specific height.
+
 :warning: Use with other interactions like [`fcl.getBlock()`](<##`fcl.getBlock(isSealed)`>) to get a full interaction at the specified block height.
 
 ### Arguments
@@ -591,6 +561,7 @@ await fcl.send([fcl.getBlock(), fcl.atBlockHeight(123)]).then(fcl.decode);
 ## `fcl.atBlockId(blockId)`
 
 A builder function that returns a partial interaction to a block at a specific block ID.
+
 :warning: Use with other interactions like [`fcl.getBlock()`](<##`fcl.getBlock(isSealed)`>) to get a full interaction at the specified block ID.
 
 ### Arguments
@@ -725,12 +696,12 @@ A builder function that returns the status of transaction.
 
 ### Returns after decoding
 
-| Name           | Type                                       | Description                                                     |
-| -------------- | ------------------------------------------ | --------------------------------------------------------------- |
-| `events`       | [[EventObject]](##`EventObject`)           | An array of events that were emitted during the transaction.                  |
+| Name           | Type                                         | Description                                                     |
+| -------------- | -------------------------------------------- | --------------------------------------------------------------- |
+| `events`       | [[EventObject]](##`EventObject`)             | An array of events that were emitted during the transaction.    |
 | `status`       | [TransactionStatus](##`TransactionStatuses`) | The status of the transaction on the blockchain.                |
-| `errorMessage` | string                                     | An error message if it exists. Default is an empty string `''`. |
-| `statusCode`   | [GRPCStatus](##`GRPCStatuses`)        | The status from the GRPC response.                              |
+| `errorMessage` | string                                       | An error message if it exists. Default is an empty string `''`. |
+| `statusCode`   | [GRPCStatus](##`GRPCStatuses`)               | The status from the GRPC response.                              |
 
 ### Usage
 
@@ -797,29 +768,135 @@ Use [`fcl.getEventsAtBlockHeightRange`](##`fcl.getEventsAtBlockHeightRange`) or 
 Use [`fcl.getBlock`](##`fcl.getBlock`).
 
 ---
+
 ## `fcl.getBlockById(blockId)` - Deprecated
 
 Use [`fcl.getBlock`](##`fcl.getBlock`) and [`fcl.atBlockId`](##`fcl.atBlockId`).
 
 ---
+
 ## `fcl.getBlockByHeight(blockHeight)` - Deprecated
 
 Use [`fcl.getBlock`](##`fcl.getBlock`) and [`fcl.atBlockHeight`](##`fcl.atBlockHeight`).
 
 ---
 
-### Query the blockchain with Cadence
-If you want to run arbitrary Cadence scripts on the blockchain, these methods offer a convenient way to do so **without having to build interactions**.
+## Query and mutate the blockchain with Cadence
+
+If you want to run arbitrary Cadence scripts on the blockchain, these methods offer a convenient way to do so **without having to build, send, and decode interactions**.
 
 ## `fcl.query({...options})`
-### Options
-*Pass in the following as a single object with the following keys*
 
-| Key   | Type   | Description                     |
-| ------ | ------ | ------------------------------- |
-| `transactionId` | string | A valid transaction id. |
+### Options
+
+_Pass in the following as a single object with the following keys.All keys are optional unless otherwise stated._
+
+| Key       | Type                                     | Description                                                                                                 |
+| --------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `cadence` | string **(required)**                    | A valid cadence script.                                                                                     |
+| `args`    | [ArgumentFunction](##`ArgumentFunction`) | Any arguments to the script if needed should be supplied via a function that returns an array of arguments. |
+| `limit`   | number                                   | Compute limit for query. :tomato: WHAT UNITS ARE THESE IN?                                                  |
+
+### Returns
+
+| Type | Description                            |
+| ---- | -------------------------------------- |
+| any  | A JSON representation of the response. |
+
+### Usage
+
+```javascript
+import * as fcl from "@onflow/fcl";
+
+const result = await fcl.query({
+  cadence: `
+    pub fun main(a: Int, b: Int, addr: Address): Int {
+      log(addr)
+      return a + b
+    }
+  `,
+  args: (arg, t) => [
+    arg(7, t.Int), // a: Int
+    arg(6, t.Int), // b: Int
+    arg("0xba1132bc08f82fe2", t.Address), // addr: Address
+  ],
+});
+console.log(result); // 13
+```
+
+### Examples
+
+- Coming Soon
+
 ---
 
+## `fcl.mutate({...options})`
+
+### Options
+
+_Pass in the following as a single object with the following keys.All keys are optional unless otherwise stated._
+
+| Key        | Type                                               | Description                                                                                                 |
+| ---------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `cadence`  | string **(required)**                              | A valid cadence transaction.                                                                                     |
+| `args`     | [ArgumentFunction](##`ArgumentFunction`)           | Any arguments to the script if needed should be supplied via a function that returns an array of arguments. |
+| `limit`    | number                                             | Compute limit for query. :tomato: WHAT UNITS ARE THESE IN?                                                  |
+| `proposer` | [AuthorizationFunction](##`AuthorizationFunction`) | The authorization function that returns a valid [AuthorizationObject](##`AuthorizationObject`) for the [proposer role](##`TransactionRoles`).             |
+
+### Returns
+
+| Type   | Description         |
+| ------ | ------------------- |
+| string | The transaction ID. |
+
+---
+
+## Pre-built Interactions
+These functions are abstracted short hand ways to skip the send and decode steps of sending an interaction to the chain. More pre-built interactions are coming soon.
+
+## `fcl.account(address)`
+A pre-built interaction that returns the details of an account from their public address.
+### Arguments
+
+| Name      | Type                   | Description                                                                        |
+| --------- | ---------------------- | ---------------------------------------------------------------------------------- |
+| `address` | [Address](##`Address`) | Address of the user account with or without a prefix (both formats are supported). |
+
+### Returns
+
+| Type                         | Description                              |
+| ---------------------------- | ---------------------------------------- |
+| [AccountObject](##`Account`) | A JSON representation of a user account. |
+
+### Usage
+
+```javascript
+import * as fcl from "@onflow/fcl";
+const account = await fcl.account("0x1d007d755706c469")
+```
+---
+## `fcl.latestBlock(isSealed)`
+A pre-built interaction that returns the latest block (optionally sealed or not).
+:tomato: UNSURE OF THE ARGUMENTS. 
+### Arguments
+
+| Name       | Type    | Default | Description                                                                       |
+| ---------- | ------- | ------- | --------------------------------------------------------------------------------- |
+| `isSealed` | boolean | false   | If the latest block should be sealed or not. See [block states](##`Interaction`). |
+
+### Returns
+
+| Type                         | Description                              |
+| ---------------------------- | ---------------------------------------- |
+| [BlockObject](##`BlockObject`) | A JSON representation of a block. |
+
+### Usage
+
+```javascript
+import * as fcl from "@onflow/fcl";
+const latestBlock = await fcl.latestBlock()
+```
+---
 ## Transaction Status Utility
 
 ## `fcl.tx(transactionId)`
@@ -829,33 +906,36 @@ A utility function that lets you set the transaction to get subsequent status up
 
 ### Arguments
 
-| Name   | Type   | Description                     |
-| ------ | ------ | ------------------------------- |
+| Name            | Type   | Description             |
+| --------------- | ------ | ----------------------- |
 | `transactionId` | string | A valid transaction id. |
 
 ### Returns
 
-| Name   | Type   | Description                     |
-| ------ | ------ | ------------------------------- |
-| `snapshot()` | function | Returns the current state of the transaction. |
-| `subscribe(cb)` | function | Calls the `cb` passed in with the new transaction on a status change. |
+| Name              | Type     | Description                                                                                                 |
+| ----------------- | -------- | ----------------------------------------------------------------------------------------------------------- |
+| `snapshot()`      | function | Returns the current state of the transaction.                                                               |
+| `subscribe(cb)`   | function | Calls the `cb` passed in with the new transaction on a status change.                                       |
 | `onceFinalized()` | function | Provides the transaction once status `2` is returned. See [Tranasaction Statuses](##`TransactionStatuses`). |
-| `onceExecuted()` | function |Provides the transaction once status `3` is returned. See [Tranasaction Statuses](##`TransactionStatuses`).|
-| `onceSealed()` | function | Provides the transaction once status `4` is returned. See [Tranasaction Statuses](##`TransactionStatuses`). |
+| `onceExecuted()`  | function | Provides the transaction once status `3` is returned. See [Tranasaction Statuses](##`TransactionStatuses`). |
+| `onceSealed()`    | function | Provides the transaction once status `4` is returned. See [Tranasaction Statuses](##`TransactionStatuses`). |
 
 ### Usage
 
 ```javascript
 import * as fcl from "@onflow/fcl";
 
-const [txStatus, setTxStatus] = useState(null)
-useEffect(() => fcl.tx(txId).subscribe(setTxStatus))
+const [txStatus, setTxStatus] = useState(null);
+useEffect(() => fcl.tx(txId).subscribe(setTxStatus));
 ```
+
 ### Examples
+
 - [React Effect to get the transaction status on submit](https://github.com/onflow/flow-port/blob/staging/src/pages/transaction-status.js#L158-L183)
 - Kitty items example :tomato: Fill in
 
 ---
+
 ## Event Polling Utility
 
 ## `fcl.events(eventName)`
@@ -865,36 +945,39 @@ A utility function that lets you set the transaction to get subsequent status up
 
 ### Arguments
 
-| Name   | Type   | Description                     |
-| ------ | ------ | ------------------------------- |
+| Name        | Type   | Description         |
+| ----------- | ------ | ------------------- |
 | `eventName` | string | A valid event name. |
 
 ### Returns
 
-| Name   | Type   | Description                     |
-| ------ | ------ | ------------------------------- |
-| `subscribe(cb)` | function | Calls the `cb` passed in with the new event.|
+| Name            | Type     | Description                                  |
+| --------------- | -------- | -------------------------------------------- |
+| `subscribe(cb)` | function | Calls the `cb` passed in with the new event. |
 
 ### Usage
 
 ```javascript
 import * as fcl from "@onflow/fcl";
 
-  const {eventKey} = useParams()
-  const [events, setEvents] = useState([])
-  useEffect(
-    () =>
-      fcl.events(eventKey).subscribe((event) => {
-        setEvents((oldEvents) => [...oldEvents, event])
-      }),
-    [eventKey]
-  )
+const { eventKey } = useParams();
+const [events, setEvents] = useState([]);
+useEffect(
+  () =>
+    fcl.events(eventKey).subscribe((event) => {
+      setEvents((oldEvents) => [...oldEvents, event]);
+    }),
+  [eventKey]
+);
 ```
+
 ### Examples
+
 - Flow view source example :tomato: Fill in
 
 ---
-# Types
+
+# Types, Interfaces, and Definitions
 
 ## `Builders`
 
@@ -938,6 +1021,28 @@ An argument object created by `fcl.arg(value,type)`
 | ---- | ---------- | ----------- |
 | `value` | any | Any value to be used as an argument to a builder. |
 | `xform` | [FType](##`FType`) | Any of the supported types on Flow. |
+
+## `ArgumentFunction`
+
+An function that takes the `fcl.arg` function and fcl types `t` and returns an array of `fcl.arg(value,type)`.
+`(arg, t) => Array<Arg>`
+| Parameter Name | Value Type | Description |
+| ---- | ---------- | ----------- |
+| `arg` | function | A function that returns an [ArgumentObject](##`ArgumentObject`) - `fcl.arg`. |
+| `t` | [FTypes](##`FType`) | An object with acccess to all of the supported types on Flow. |
+**Returns**
+| Value Type | Description |
+|----------- | ----------- |
+| `[fcl.args]` | Array of `fcl.args`. |
+| `xform` | [FType(s)](##`FType`) - Any of the supported types on Flow. |
+
+## `AuthorizationFunction`
+
+:tomato: TODO
+
+## `TransactionRoles`
+
+:tomato: TODO
 
 ## `EventName`
 
@@ -990,7 +1095,7 @@ The subset of the [BlockObject](##`BlockObject`) containing only the header valu
 ## `ResponseObject`
 
 The format of all responses in FCL returned from `fcl.send(...)`. For full details on the values and descriptions of the keys, view [here](https://github.com/onflow/flow-js-sdk/tree/master/packages/sdk/src/response).
-| Key | 
+| Key |
 | ---- |
 | `tag` |
 | `transaction` |
@@ -1050,14 +1155,12 @@ FCL arguments must specify one of the following support types for each value pas
 | `UInt64` |
 :tomato: TODO add more
 
-
-
-
-
 ---
-DEPRECATED, USE QUERY AND MUTATE.
 
 ## Utility Builders
+These builders are used to compose interactions with other builders such as scripts and transactions.
+
+> :warning: ***Deprecating soon***. Unless you have a specific use case that require usage of these builders, you should be able to achieve most cases with `fcl.query({...options}` or `fcl.mutate({...options})`
 
 ## `fcl.arg(value, type)`
 
@@ -1131,13 +1234,15 @@ await fcl
       fcl.arg(4, t.Int), // b
     ]),
   ])
-  .then(fcl.decode);
+  .then(fcl.decode); // 9
 ```
 
 ---
 
 ## Template Builders
 
+
+> :warning: ***Deprecating soon***. Unless you have a specific use case that require usage of these builders, you should be able to achieve most cases with `fcl.query({...options}` or `fcl.mutate({...options})`
 ## `fcl.script(CODE)`
 
 A template builder to use a Cadence script for an interaction.
