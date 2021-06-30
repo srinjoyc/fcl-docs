@@ -350,6 +350,77 @@ These methods allows dapps to interact directly with the Flow blockchain via a s
 ## Methods
 
 ---
+## Query and mutate the blockchain with Cadence
+
+If you want to run arbitrary Cadence scripts on the blockchain, these methods offer a convenient way to do so **without having to build, send, and decode interactions**.
+
+## `fcl.query({...options})`
+
+### Options
+
+_Pass in the following as a single object with the following keys.All keys are optional unless otherwise stated._
+
+| Key       | Type                                     | Description                                                                                                 |
+| --------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `cadence` | string **(required)**                    | A valid cadence script.                                                                                     |
+| `args`    | [ArgumentFunction](##`ArgumentFunction`) | Any arguments to the script if needed should be supplied via a function that returns an array of arguments. |
+| `limit`   | number                                   | Compute limit for query. :tomato: WHAT UNITS ARE THESE IN?                                                  |
+
+### Returns
+
+| Type | Description                            |
+| ---- | -------------------------------------- |
+| any  | A JSON representation of the response. |
+
+### Usage
+
+```javascript
+import * as fcl from "@onflow/fcl";
+
+const result = await fcl.query({
+  cadence: `
+    pub fun main(a: Int, b: Int, addr: Address): Int {
+      log(addr)
+      return a + b
+    }
+  `,
+  args: (arg, t) => [
+    arg(7, t.Int), // a: Int
+    arg(6, t.Int), // b: Int
+    arg("0xba1132bc08f82fe2", t.Address), // addr: Address
+  ],
+});
+console.log(result); // 13
+```
+
+### Examples
+
+- Coming Soon
+
+---
+
+## `fcl.mutate({...options})`
+
+### Options
+
+_Pass in the following as a single object with the following keys.All keys are optional unless otherwise stated._
+
+| Key        | Type                                               | Description                                                                                                 |
+| ---------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `cadence`  | string **(required)**                              | A valid cadence transaction.                                                                                     |
+| `args`     | [ArgumentFunction](##`ArgumentFunction`)           | Any arguments to the script if needed should be supplied via a function that returns an array of arguments. |
+| `limit`    | number                                             | Compute limit for query. :tomato: WHAT UNITS ARE THESE IN?                                                  |
+| `proposer` | [AuthorizationFunction](##`AuthorizationFunction`) | The authorization function that returns a valid [AuthorizationObject](##`AuthorizationObject`) for the [proposer role](##`TransactionRoles`).             |
+
+### Returns
+
+| Type   | Description         |
+| ------ | ------------------- |
+| string | The transaction ID. |
+
+---
+## Query and mutate the blockchain with Builders
+In some cases, you may want to build more complex interactions than what the `fcl.query` and `fcl.mutate` interface offer. To do this, FCL uses a pattern of building up an interaction with a combination of builders, resolving them, and sending them to the chain.
 
 ## `fcl.send([...builders])`
 
@@ -781,73 +852,158 @@ Use [`fcl.getBlock`](##`fcl.getBlock`) and [`fcl.atBlockHeight`](##`fcl.atBlockH
 
 ---
 
-## Query and mutate the blockchain with Cadence
+## Utility Builders
+These builders are used to compose interactions with other builders such as scripts and transactions.
 
-If you want to run arbitrary Cadence scripts on the blockchain, these methods offer a convenient way to do so **without having to build, send, and decode interactions**.
+> :warning: ***Deprecating soon***. Unless you have a specific use case that require usage of these builders, you should be able to achieve most cases with `fcl.query({...options}` or `fcl.mutate({...options})`
 
-## `fcl.query({...options})`
+## `fcl.arg(value, type)`
 
-### Options
+A utility builder to be used with `fcl.args[...]` to create FCL supported arguments for interactions.
 
-_Pass in the following as a single object with the following keys.All keys are optional unless otherwise stated._
+### Arguments
 
-| Key       | Type                                     | Description                                                                                                 |
-| --------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `cadence` | string **(required)**                    | A valid cadence script.                                                                                     |
-| `args`    | [ArgumentFunction](##`ArgumentFunction`) | Any arguments to the script if needed should be supplied via a function that returns an array of arguments. |
-| `limit`   | number                                   | Compute limit for query. :tomato: WHAT UNITS ARE THESE IN?                                                  |
+| Name    | Type                | Description                                               |
+| ------- | ------------------- | --------------------------------------------------------- |
+| `value` | any                 | Any value that you are looking to pass to other builders. |
+| `type`  | [FType](##`FTypes`) | A type supported by Flow.                                 |
 
 ### Returns
 
-| Type | Description                            |
-| ---- | -------------------------------------- |
-| any  | A JSON representation of the response. |
+| Type                                 | Description                         |
+| ------------------------------------ | ----------------------------------- |
+| [ArgumentObject](##`ArgumentObject`) | Holds the value and type passed in. |
 
 ### Usage
 
 ```javascript
 import * as fcl from "@onflow/fcl";
 
-const result = await fcl.query({
-  cadence: `
-    pub fun main(a: Int, b: Int, addr: Address): Int {
-      log(addr)
-      return a + b
-    }
-  `,
-  args: (arg, t) => [
-    arg(7, t.Int), // a: Int
-    arg(6, t.Int), // b: Int
-    arg("0xba1132bc08f82fe2", t.Address), // addr: Address
-  ],
-});
-console.log(result); // 13
+await fcl
+  .send([
+    fcl.script`
+      pub fun main(a: Int, b: Int): Int {
+        return a + b
+      }
+    `,
+    fcl.args([
+      fcl.arg(5, t.Int), // a
+      fcl.arg(4, t.Int), // b
+    ]),
+  ])
+  .then(fcl.decode);
 ```
-
-### Examples
-
-- Coming Soon
 
 ---
 
-## `fcl.mutate({...options})`
+## `fcl.args([...args])`
 
-### Options
+A utility builder to be used with other builders to pass in arguments with a value and supported type.
 
-_Pass in the following as a single object with the following keys.All keys are optional unless otherwise stated._
+### Arguments
 
-| Key        | Type                                               | Description                                                                                                 |
-| ---------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `cadence`  | string **(required)**                              | A valid cadence transaction.                                                                                     |
-| `args`     | [ArgumentFunction](##`ArgumentFunction`)           | Any arguments to the script if needed should be supplied via a function that returns an array of arguments. |
-| `limit`    | number                                             | Compute limit for query. :tomato: WHAT UNITS ARE THESE IN?                                                  |
-| `proposer` | [AuthorizationFunction](##`AuthorizationFunction`) | The authorization function that returns a valid [AuthorizationObject](##`AuthorizationObject`) for the [proposer role](##`TransactionRoles`).             |
+| Name   | Type                                     | Description                                                           |
+| ------ | ---------------------------------------- | --------------------------------------------------------------------- |
+| `args` | [[Argument Objects]](##`ArgumentObject`) | An array of arguments that you are looking to pass to other builders. |
 
 ### Returns
 
-| Type   | Description         |
-| ------ | ------------------- |
-| string | The transaction ID. |
+| Type                                   | Description                                                                                                         |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| [Partial Interaction](##`Interaction`) | An interaction that contains the arguments and types passed in. This alone is a partial and incomplete interaction. |
+
+### Usage
+
+```javascript
+import * as fcl from "@onflow/fcl";
+
+await fcl
+  .send([
+    fcl.script`
+      pub fun main(a: Int, b: Int): Int {
+        return a + b
+      }
+    `,
+    fcl.args([
+      fcl.arg(5, t.Int), // a
+      fcl.arg(4, t.Int), // b
+    ]),
+  ])
+  .then(fcl.decode); // 9
+```
+
+---
+
+## Template Builders
+
+
+> :warning: ***Deprecating soon***. Unless you have a specific use case that require usage of these builders, you should be able to achieve most cases with `fcl.query({...options}` or `fcl.mutate({...options})`
+## `fcl.script(CODE)`
+
+A template builder to use a Cadence script for an interaction.
+:loudspeaker: Use with `fcl.args[...]` to pass in arguments dynamically.
+
+### Arguments
+
+| Name   | Type   | Description                     |
+| ------ | ------ | ------------------------------- |
+| `CODE` | string | Should be valid Cadence script. |
+
+### Returns
+
+| Type                           | Description                                   |
+| ------------------------------ | --------------------------------------------- |
+| [Interaction](##`Interaction`) | An interaction containing the code passed in. |
+
+### Usage
+
+```javascript
+import * as fcl from "@onflow/fcl";
+
+const code = `
+  pub fun main(): Int {
+    return 5 + 4
+  }
+`;
+const answer = await fcl.send([fcl.script(code)]).then(fcl.decode);
+console.log(answer); // 9
+```
+
+---
+
+## `fcl.transaction(CODE)`
+
+A template builder to use a Cadence transaction for an interaction.
+
+:warning: Must be used with `fcl.payer`, `fcl.proposer`, `fcl.authorizations` to produce a valid interaction before sending to the chain.
+
+:loudspeaker: Use with `fcl.args[...]` to pass in arguments dynamically.
+
+### Arguments
+
+| Name   | Type   | Description                            |
+| ------ | ------ | -------------------------------------- |
+| `CODE` | string | Should be valid a Cadence transaction. |
+
+### Returns
+
+| Type                                   | Description                                                                                                                    |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| [Partial Interaction](##`Interaction`) | An partial interaction containing the code passed in. Further builders are required to complete the interaction - see warning. |
+
+### Usage
+
+```javascript
+import * as fcl from "@onflow/fcl";
+
+const code = `
+  pub fun main(): Int {
+    return 5 + 4
+  }
+`;
+const answer = await fcl.send([fcl.script(code)]).then(fcl.decode);
+console.log(answer); // 9
+```
 
 ---
 
@@ -1157,155 +1313,3 @@ FCL arguments must specify one of the following support types for each value pas
 
 ---
 
-## Utility Builders
-These builders are used to compose interactions with other builders such as scripts and transactions.
-
-> :warning: ***Deprecating soon***. Unless you have a specific use case that require usage of these builders, you should be able to achieve most cases with `fcl.query({...options}` or `fcl.mutate({...options})`
-
-## `fcl.arg(value, type)`
-
-A utility builder to be used with `fcl.args[...]` to create FCL supported arguments for interactions.
-
-### Arguments
-
-| Name    | Type                | Description                                               |
-| ------- | ------------------- | --------------------------------------------------------- |
-| `value` | any                 | Any value that you are looking to pass to other builders. |
-| `type`  | [FType](##`FTypes`) | A type supported by Flow.                                 |
-
-### Returns
-
-| Type                                 | Description                         |
-| ------------------------------------ | ----------------------------------- |
-| [ArgumentObject](##`ArgumentObject`) | Holds the value and type passed in. |
-
-### Usage
-
-```javascript
-import * as fcl from "@onflow/fcl";
-
-await fcl
-  .send([
-    fcl.script`
-      pub fun main(a: Int, b: Int): Int {
-        return a + b
-      }
-    `,
-    fcl.args([
-      fcl.arg(5, t.Int), // a
-      fcl.arg(4, t.Int), // b
-    ]),
-  ])
-  .then(fcl.decode);
-```
-
----
-
-## `fcl.args([...args])`
-
-A utility builder to be used with other builders to pass in arguments with a value and supported type.
-
-### Arguments
-
-| Name   | Type                                     | Description                                                           |
-| ------ | ---------------------------------------- | --------------------------------------------------------------------- |
-| `args` | [[Argument Objects]](##`ArgumentObject`) | An array of arguments that you are looking to pass to other builders. |
-
-### Returns
-
-| Type                                   | Description                                                                                                         |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| [Partial Interaction](##`Interaction`) | An interaction that contains the arguments and types passed in. This alone is a partial and incomplete interaction. |
-
-### Usage
-
-```javascript
-import * as fcl from "@onflow/fcl";
-
-await fcl
-  .send([
-    fcl.script`
-      pub fun main(a: Int, b: Int): Int {
-        return a + b
-      }
-    `,
-    fcl.args([
-      fcl.arg(5, t.Int), // a
-      fcl.arg(4, t.Int), // b
-    ]),
-  ])
-  .then(fcl.decode); // 9
-```
-
----
-
-## Template Builders
-
-
-> :warning: ***Deprecating soon***. Unless you have a specific use case that require usage of these builders, you should be able to achieve most cases with `fcl.query({...options}` or `fcl.mutate({...options})`
-## `fcl.script(CODE)`
-
-A template builder to use a Cadence script for an interaction.
-:loudspeaker: Use with `fcl.args[...]` to pass in arguments dynamically.
-
-### Arguments
-
-| Name   | Type   | Description                     |
-| ------ | ------ | ------------------------------- |
-| `CODE` | string | Should be valid Cadence script. |
-
-### Returns
-
-| Type                           | Description                                   |
-| ------------------------------ | --------------------------------------------- |
-| [Interaction](##`Interaction`) | An interaction containing the code passed in. |
-
-### Usage
-
-```javascript
-import * as fcl from "@onflow/fcl";
-
-const code = `
-  pub fun main(): Int {
-    return 5 + 4
-  }
-`;
-const answer = await fcl.send([fcl.script(code)]).then(fcl.decode);
-console.log(answer); // 9
-```
-
----
-
-## `fcl.transaction(CODE)`
-
-A template builder to use a Cadence transaction for an interaction.
-:warning: Must be used with `fcl.payer`, `fcl.proposer`, `fcl.authorizations` to produce a valid interaction before sending to the chain.
-:loudspeaker: Use with `fcl.args[...]` to pass in arguments dynamically.
-
-### Arguments
-
-| Name   | Type   | Description                            |
-| ------ | ------ | -------------------------------------- |
-| `CODE` | string | Should be valid a Cadence transaction. |
-
-### Returns
-
-| Type                                   | Description                                                                                                                    |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| [Partial Interaction](##`Interaction`) | An partial interaction containing the code passed in. Further builders are required to complete the interaction - see warning. |
-
-### Usage
-
-```javascript
-import * as fcl from "@onflow/fcl";
-
-const code = `
-  pub fun main(): Int {
-    return 5 + 4
-  }
-`;
-const answer = await fcl.send([fcl.script(code)]).then(fcl.decode);
-console.log(answer); // 9
-```
-
----
