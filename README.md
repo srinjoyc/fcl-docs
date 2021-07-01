@@ -244,9 +244,9 @@ const txId = await fcl.mutate({
     }
   `,
   args: (arg, t) => [arg("myName", t.String)],
-  proposer: fcl.authz,
-  payer: fcl.authz,
-  authorizations: [fcl.authz],
+  proposer: fcl.authz, // optional - default is fcl.authz
+  payer: fcl.authz, // optional - default is fcl.authz
+  authorizations: [fcl.authz], // optional - default is [fcl.authz]
 });
 ```
 
@@ -263,15 +263,6 @@ Holds the [current user](##`CurrentUserObject`) if set and offers a set of funct
 > :warning: **The following methods can only be used client side.**
 
 ## Methods
-
----
-## `fcl.currentUser()`
-
-### Returns
-
- Type     | Description                                                                                                                               |
- -------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
- [CurrentUserObject](##`CurrentUserObject`) | Returns the [current user](##`CurrentUserObject`) object. |
 
 ---
 
@@ -359,6 +350,7 @@ These methods allows dapps to interact directly with the Flow blockchain via a s
 ## Methods
 
 ---
+
 ## Query and mutate the blockchain with Cadence
 
 If you want to run arbitrary Cadence scripts on the blockchain, these methods offer a convenient way to do so **without having to build, send, and decode interactions**.
@@ -414,12 +406,12 @@ console.log(result); // 13
 
 _Pass in the following as a single object with the following keys.All keys are optional unless otherwise stated._
 
-| Key        | Type                                               | Description                                                                                                 |
-| ---------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `cadence`  | string **(required)**                              | A valid cadence transaction.                                                                                     |
-| `args`     | [ArgumentFunction](##`ArgumentFunction`)           | Any arguments to the script if needed should be supplied via a function that returns an array of arguments. |
-| `limit`    | number                                             | Compute limit for query. :tomato: WHAT UNITS ARE THESE IN?                                                  |
-| `proposer` | [AuthorizationFunction](##`AuthorizationFunction`) | The authorization function that returns a valid [AuthorizationObject](##`AuthorizationObject`) for the [proposer role](##`TransactionRoles`).             |
+| Key        | Type                                               | Description                                                                                                                                   |
+| ---------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cadence`  | string **(required)**                              | A valid cadence transaction.                                                                                                                  |
+| `args`     | [ArgumentFunction](##`ArgumentFunction`)           | Any arguments to the script if needed should be supplied via a function that returns an array of arguments.                                   |
+| `limit`    | number                                             | Compute limit for query. :tomato: WHAT UNITS ARE THESE IN?                                                                                    |
+| `proposer` | [AuthorizationFunction](##`AuthorizationFunction`) | The authorization function that returns a valid [AuthorizationObject](##`AuthorizationObject`) for the [proposer role](##`TransactionRoles`). |
 
 ### Returns
 
@@ -428,7 +420,9 @@ _Pass in the following as a single object with the following keys.All keys are o
 | string | The transaction ID. |
 
 ---
+
 ## Query and mutate the blockchain with Builders
+
 In some cases, you may want to build more complex interactions than what the `fcl.query` and `fcl.mutate` interface offer. To do this, FCL uses a pattern of building up an interaction with a combination of builders, resolving them, and sending them to the chain.
 
 ## `fcl.send([...builders])`
@@ -547,7 +541,7 @@ build, resolve, and send it to the blockchain. A valid populated template is ref
 
 A builder function that returns the interaction to get an account by address.
 
-:warning: Consider using the pre-built interaction [`fcl.account(address)`](##`fcl.account(address)`) if you do not need to pair with any other builders.
+:warning: Consider using the pre-built interaction [`fcl.account(address)`](<##`fcl.account(address)`>) if you do not need to pair with any other builders.
 
 ### Arguments
 
@@ -582,7 +576,7 @@ A builder function that returns the interaction to get the latest block.
 
 :loudspeaker: Use with `fcl.atBlockId()` and `fcl.atBlockHeight()` when building the interaction to get information for older blocks.
 
-:warning: Consider using the pre-built interaction [`fcl.latestBlock(isSealed)`](##`fcl.latestBlock(isSealed)`) if you do not need to pair with any other builders.
+:warning: Consider using the pre-built interaction [`fcl.latestBlock(isSealed)`](<##`fcl.latestBlock(isSealed)`>) if you do not need to pair with any other builders.
 
 ### Arguments
 
@@ -862,9 +856,10 @@ Use [`fcl.getBlock`](##`fcl.getBlock`) and [`fcl.atBlockHeight`](##`fcl.atBlockH
 ---
 
 ## Utility Builders
+
 These builders are used to compose interactions with other builders such as scripts and transactions.
 
-> :warning: ***Deprecating soon***. Unless you have a specific use case that require usage of these builders, you should be able to achieve most cases with `fcl.query({...options}` or `fcl.mutate({...options})`
+> :warning: **_Deprecating soon_**. Unless you have a specific use case that require usage of these builders, you should be able to achieve most cases with `fcl.query({...options}` or `fcl.mutate({...options})`
 
 ## `fcl.arg(value, type)`
 
@@ -945,8 +940,8 @@ await fcl
 
 ## Template Builders
 
+> :warning: **_Deprecating soon_**. Unless you have a specific use case that require usage of these builders, you should be able to achieve most cases with `fcl.query({...options}` or `fcl.mutate({...options})`
 
-> :warning: ***Deprecating soon***. Unless you have a specific use case that require usage of these builders, you should be able to achieve most cases with `fcl.query({...options}` or `fcl.mutate({...options})`
 ## `fcl.script(CODE)`
 
 A template builder to use a Cadence script for an interaction.
@@ -1017,10 +1012,13 @@ console.log(answer); // 9
 ---
 
 ## Pre-built Interactions
+
 These functions are abstracted short hand ways to skip the send and decode steps of sending an interaction to the chain. More pre-built interactions are coming soon.
 
 ## `fcl.account(address)`
+
 A pre-built interaction that returns the details of an account from their public address.
+
 ### Arguments
 
 | Name      | Type                   | Description                                                                        |
@@ -1037,12 +1035,16 @@ A pre-built interaction that returns the details of an account from their public
 
 ```javascript
 import * as fcl from "@onflow/fcl";
-const account = await fcl.account("0x1d007d755706c469")
+const account = await fcl.account("0x1d007d755706c469");
 ```
+
 ---
+
 ## `fcl.latestBlock(isSealed)`
+
 A pre-built interaction that returns the latest block (optionally sealed or not).
-:tomato: UNSURE OF THE ARGUMENTS. 
+:tomato: UNSURE OF THE ARGUMENTS.
+
 ### Arguments
 
 | Name       | Type    | Default | Description                                                                       |
@@ -1051,17 +1053,19 @@ A pre-built interaction that returns the latest block (optionally sealed or not)
 
 ### Returns
 
-| Type                         | Description                              |
-| ---------------------------- | ---------------------------------------- |
+| Type                           | Description                       |
+| ------------------------------ | --------------------------------- |
 | [BlockObject](##`BlockObject`) | A JSON representation of a block. |
 
 ### Usage
 
 ```javascript
 import * as fcl from "@onflow/fcl";
-const latestBlock = await fcl.latestBlock()
+const latestBlock = await fcl.latestBlock();
 ```
+
 ---
+
 ## Transaction Status Utility
 
 ## `fcl.tx(transactionId)`
@@ -1151,6 +1155,25 @@ Builders are modular functions that can be coupled together with `fcl.send([...b
 ## `Interactions`
 
 An interaction is a a template containing a valid string of Cadence code that either a script or a transaction. Please read the guide on [FCL Interactions](https://github.com/onflow/kitty-items/blob/master/web/src/hooks/use-current-user.hook.js).
+
+## `CurrentUserObject`
+| Key | Value Type | Default | Description |
+| ---- | ---------- | -------- | ----------- |
+| `addr` | [Address](##`Address`) | `null` | The public address of the current user |
+| `cid` | string | `null` | :tomato: TODO |
+| `expiresAt` | number | `null` | If the current session expires the value will be non-null. :tomato: UNSURE |
+| `f_type` | string | `'USER'` | A type identifier used internally by FCL. |
+| `f_vsn` | string | `'1.0.0'` | The version to use when passing messages between the provider and the dapp. :tomato: UNSURE |
+| `loggedIn` | boolean | `null` | If the user is logged in. |
+| `services` | [ServiceObject] | `[]` |A list of services that offer specific functionality (eg. authorization) from the wallet provider to the logged in user. :tomato: More documentation coming soon. |
+
+addr: "0x130234d6c15d13a7"
+cid: "de88f086a545ce3c552d94634a374e43483258382d4a4154716572694e7848"
+expiresAt: undefined
+f_type: "USER"
+f_vsn: "1.0.0"
+loggedIn: true
+services: (6) [{…}, {…}, {…}, {…}, {…}, {…}]
 
 ## `AuthorizationObject`
 
@@ -1321,4 +1344,3 @@ FCL arguments must specify one of the following support types for each value pas
 :tomato: TODO add more
 
 ---
-
