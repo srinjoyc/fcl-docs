@@ -391,6 +391,7 @@ These methods allows dapps to interact directly with the Flow blockchain via a s
 If you want to run arbitrary Cadence scripts on the blockchain, these methods offer a convenient way to do so **without having to build, send, and decode interactions**.
 
 ## `fcl.query({...options})`
+Allows you to submit scripts to query the blockchain.
 
 ### Options
 
@@ -431,11 +432,14 @@ console.log(result); // 13
 
 ### Examples
 
-- Coming Soon
+- [Additional Explanation](https://gist.github.com/orodio/3bf977a0bd45b990d16fdc1459b129a2)
 
 ---
 
 ## `fcl.mutate({...options})`
+Allows you to submit transactions to the blockchain to potentially mutate the state.
+
+:warning: By default, `fcl.mutate` uses `fcl.authz` to produce the authorization for the current user (assumes it is already set). If the current user is not set (ie. not being used in the browser), then you will need to write your own custom authorization and signing functions.
 
 ### Options
 
@@ -454,6 +458,29 @@ _Pass in the following as a single object with the following keys.All keys are o
 | ------ | ------------------- |
 | string | The transaction ID. |
 
+### Usage
+
+```javascript
+import * as fcl from "@onflow/fcl";
+// login somewhere before
+fcl.authenticate();
+
+const txId = await fcl.mutate({
+  cadence: `
+    import Profile from 0xba1132bc08f82fe2
+    
+    transaction(name: String) {
+      prepare(account: AuthAccount) {
+        account.borrow<&{Profile.Owner}>(from: Profile.privatePath)!.setName(name)
+      }
+    }
+  `,
+  args: (arg, t) => [arg("myName", t.String)],
+});
+```
+### Examples
+
+- [Additional Explanation](https://gist.github.com/orodio/3bf977a0bd45b990d16fdc1459b129a2)
 ---
 
 ## Query and mutate the blockchain with Builders
