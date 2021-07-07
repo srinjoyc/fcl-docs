@@ -1149,6 +1149,7 @@ useEffect(
 ---
 
 # Types, Interfaces, and Definitions
+
 ---
 
 ## `Builders`
@@ -1164,15 +1165,16 @@ An interaction is a a template containing a valid string of Cadence code that is
 ---
 
 ## `CurrentUserObject`
-| Key | Value Type | Default | Description |
-| ---- | ---------- | -------- | ----------- |
-| `addr` | [Address](##`Address`) | `null` | The public address of the current user |
-| `cid` | string | `null` | :tomato: TODO |
-| `expiresAt` | number | `null` | If the current session expires the value will be non-null. :tomato: UNSURE |
-| `f_type` | string | `'USER'` | A type identifier used internally by FCL. |
-| `f_vsn` | string | `'1.0.0'` | The version to use when passing messages between the provider and the dapp. :tomato: UNSURE |
-| `loggedIn` | boolean | `null` | If the user is logged in. |
-| `services` | [ServiceObject] | `[]` |A list of services that offer specific functionality (eg. authorization) from the wallet provider to the logged in user. :tomato: More documentation coming soon. |
+
+| Key         | Value Type             | Default   | Description                                                                                                                                                       |
+| ----------- | ---------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `addr`      | [Address](##`Address`) | `null`    | The public address of the current user                                                                                                                            |
+| `cid`       | string                 | `null`    | :tomato: TODO                                                                                                                                                     |
+| `expiresAt` | number                 | `null`    | If the current session expires the value will be non-null. :tomato: UNSURE                                                                                        |
+| `f_type`    | string                 | `'USER'`  | A type identifier used internally by FCL.                                                                                                                         |
+| `f_vsn`     | string                 | `'1.0.0'` | The version to use when passing messages between the provider and the dapp. :tomato: UNSURE                                                                       |
+| `loggedIn`  | boolean                | `null`    | If the user is logged in.                                                                                                                                         |
+| `services`  | [ServiceObject]        | `[]`      | A list of services that offer specific functionality (eg. authorization) from the wallet provider to the logged in user. :tomato: More documentation coming soon. |
 
 ---
 
@@ -1192,11 +1194,11 @@ This type conforms to the interface required for FCL to authorize transaction on
 
 An object that contains all the information needed for FCL to sign a message with the user's signature.
 
-| Key | Value Type | Description |
-| ---- | ---------- | ----------- |
-| `addr` | [Address](##`Address`) | The address of the authorizer |
-| `keyId` | number | The index of the key to use during authorization. (Multiple keys on an account is possible). |
-| `signature` | function | A [SigningFunction](##`SigningFunction`) that can produce a valid signature for a user from a message. |
+| Key         | Value Type             | Description                                                                                            |
+| ----------- | ---------------------- | ------------------------------------------------------------------------------------------------------ |
+| `addr`      | [Address](##`Address`) | The address of the authorizer                                                                          |
+| `keyId`     | number                 | The index of the key to use during authorization. (Multiple keys on an account is possible).           |
+| `signature` | function               | A [SigningFunction](##`SigningFunction`) that can produce a valid signature for a user from a message. |
 
 ---
 
@@ -1234,16 +1236,18 @@ An argument object created by `fcl.arg(value,type)`
 ## `ArgumentFunction`
 
 An function that takes the `fcl.arg` function and fcl types `t` and returns an array of `fcl.arg(value,type)`.
+
 `(arg, t) => Array<Arg>`
-| Parameter Name | Value Type | Description |
-| ---- | ---------- | ----------- |
-| `arg` | function | A function that returns an [ArgumentObject](##`ArgumentObject`) - `fcl.arg`. |
-| `t` | [FTypes](##`FType`) | An object with acccess to all of the supported types on Flow. |
+
+| Parameter Name | Value Type          | Description                                                                  |
+| -------------- | ------------------- | ---------------------------------------------------------------------------- |
+| `arg`          | function            | A function that returns an [ArgumentObject](##`ArgumentObject`) - `fcl.arg`. |
+| `t`            | [FTypes](##`FType`) | An object with acccess to all of the supported types on Flow.                |
+
 **Returns**
 | Value Type | Description |
 |----------- | ----------- |
 | `[fcl.args]` | Array of `fcl.args`. |
-| `xform` | [FType(s)](##`FType`) - Any of the supported types on Flow. |
 
 ---
 
@@ -1255,9 +1259,9 @@ An authorization function must produce the information of the user that is going
 
 :loudspeaker: By default FCL exposes `fcl.authz` that produces the authorization object for the current user (given they are signed in and only on the browser). Replace this with your own function that conforms to this interface to use it wherever an authorization object is needed.
 
-| Parameter Name | Value Type | Description |
-| ---- | ---------- | ----------- |
-| `account` | [AccountObject](##`AccountObject`) | The account of the user that is going to sign. |
+| Parameter Name | Value Type                         | Description                                    |
+| -------------- | ---------------------------------- | ---------------------------------------------- |
+| `account`      | [AccountObject](##`AccountObject`) | The account of the user that is going to sign. |
 
 **Returns**
 | Value Type | Description |
@@ -1265,17 +1269,19 @@ An authorization function must produce the information of the user that is going
 | Promise<[AuthorizationObject](##`AuthorizationObject`)> | The object that contains all the information needed by FCL to authorize a user's transaction. |
 
 ### Usage
+
 ---
+
 ```javascript
 const authorizationFunction = async (account) => {
     // authorization function need to return an account
     const { address, keys } = account
-    const tempId = `${address}-${keys[process.env.minterAccountIndex]}`; 
-    const keyId = Number(KEY_ID); 
+    const tempId = `${address}-${keys[process.env.minterAccountIndex]}`;
+    const keyId = Number(KEY_ID);
     let signingFunction = async signable => {
       return {
         keyId,
-        addr: fcl.withPrefix(address), 
+        addr: fcl.withPrefix(address),
         signature: sign(process.env.FLOW_MINTER_PRIVATE_KEY, signable.message), // signing function, read below
       }
     }
@@ -1287,13 +1293,16 @@ const authorizationFunction = async (account) => {
     signingFunction,
   }
 ```
+
 ### Examples:
+
 - [Node.js Service using the service account to authorize a minter](https://github.com/onflow/kitty-items/blob/master/api/src/services/flow.ts)
 - [Detailed explanation](https://github.com/onflow/flow-js-sdk/blob/master/packages/fcl/src/wallet-provider-spec/authorization-function.md)
 
---- 
+---
 
 ## `Signing Function`
+
 Consumes a payload and produces a signature for a transaction.
 
 :warning: This function is always async.
@@ -1301,15 +1310,16 @@ Consumes a payload and produces a signature for a transaction.
 :loudspeaker: Only write your own signing function if you are writing your own custom authorization function.
 
 ### Payload
+
 Note: These values are destructed from the payload object in the first argument.
 
-| Parameter Name | Value Type | Description |
-| ---- | ---------- | ----------- |
-| `message` | string | The encoded string which needs to be used to produce the signature. |
-| `addr` | string | The encoded string which needs to be used to produce the signature. |
-| `keyId` | string | The encoded string which needs to be used to produce the signature. |
-| `roles` | string | The encoded string which needs to be used to produce the signature. |
-| `voucher` | object | The raw transactions information, can be used to create the message for additional safety and lack of trust in the supplied message. |
+| Parameter Name | Value Type | Description                                                                                                                          |
+| -------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `message`      | string     | The encoded string which needs to be used to produce the signature.                                                                  |
+| `addr`         | string     | The encoded string which needs to be used to produce the signature.                                                                  |
+| `keyId`        | string     | The encoded string which needs to be used to produce the signature.                                                                  |
+| `roles`        | string     | The encoded string which needs to be used to produce the signature.                                                                  |
+| `voucher`      | object     | The raw transactions information, can be used to create the message for additional safety and lack of trust in the supplied message. |
 
 **Returns**
 | Value Type | Description |
@@ -1317,6 +1327,7 @@ Note: These values are destructed from the payload object in the first argument.
 | Promise<[SignableObject](##`SignableObject`)> | The object that contains all the information needed by FCL to authorize a user's transaction. |
 
 ### Usage
+
 ```javascript
 import * as fcl from "@onflow/fcl";
 import { ec as EC } from "elliptic";
@@ -1324,12 +1335,12 @@ import { SHA3 } from "sha3";
 const ec: EC = new EC("p256");
 
 const produceSignature = (privateKey, msg) => {
-    const key = ec.keyFromPrivate(Buffer.from(privateKey, "hex"));
-    const sig = key.sign(this.hashMsg(msg));
-    const n = 32;
-    const r = sig.r.toArrayLike(Buffer, "be", n);
-    const s = sig.s.toArrayLike(Buffer, "be", n);
-    return Buffer.concat([r, s]).toString("hex");
+  const key = ec.keyFromPrivate(Buffer.from(privateKey, "hex"));
+  const sig = key.sign(this.hashMsg(msg));
+  const n = 32;
+  const r = sig.r.toArrayLike(Buffer, "be", n);
+  const s = sig.s.toArrayLike(Buffer, "be", n);
+  return Buffer.concat([r, s]).toString("hex");
 };
 
 const signingFunction = ({
@@ -1340,18 +1351,19 @@ const signingFunction = ({
     proposer, // A Boolean representing if this signature to be produced for a proposer.
     authorizer, // A Boolean representing if this signature to be produced for a authorizer.
     payer, // A Boolean representing if this signature to be produced for a payer.
-  }, 
+  },
   voucher, // The raw transactions information, can be used to create the message for additional safety and lack of trust in the supplied message.
 }) => {
   return {
     addr, // The address of the Flow Account this signature was produced for.
     keyId, // The keyId for which key was used to produce the signature.
-    signature: produceSignature(message) // The hex encoded string representing the signature of the message.
-  }
-}
+    signature: produceSignature(message), // The hex encoded string representing the signature of the message.
+  };
+};
 ```
 
 ### Examples:
+
 - [Node.js Service using the service account to authorize a minter](https://github.com/onflow/kitty-items/blob/master/api/src/services/flow.ts)
 - [Detailed explanation](https://github.com/onflow/flow-js-sdk/blob/master/packages/fcl/src/wallet-provider-spec/authorization-function.md)
 
@@ -1359,11 +1371,11 @@ const signingFunction = ({
 
 ## `TransactionRolesObject`
 
-| Key Name        | Value Type        | Description                                          |
-| ----------------- | ---------------------------------------------------- |
-| proposer | boolean | A Boolean representing if this signature to be produced for a proposer.|
-| authorizer | boolean | A Boolean representing if this signature to be produced for an authorizer.|
-| payer | boolean | A Boolean representing if this signature to be produced for a payer. |
+| Key Name   | Value Type | Description                                                                |
+| ---------- | ---------- | -------------------------------------------------------------------------- |
+| proposer   | boolean    | A Boolean representing if this signature to be produced for a proposer.    |
+| authorizer | boolean    | A Boolean representing if this signature to be produced for an authorizer. |
+| payer      | boolean    | A Boolean representing if this signature to be produced for a payer.       |
 
 For more on what each transaction role means, see [singing roles](https://docs.onflow.org/concepts/transaction-signing/#signer-roles).
 
