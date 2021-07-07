@@ -5,7 +5,7 @@
 
 **2nd TODO** - Please check for the following after reading it over:
 -  Do all the explanations of the functions make sense and are they accurate?
--  Are the examples listed accurate/functional for their respective section?
+-  Are the examples listed accurate/functional for their respective section? (note: could use help filling these out, many are known to be missing/broken.)
 -  Do the :warning: and :loudspeaker: used properly and do they make sense?
 -  Is it clear what the recommendation is (especially in terms of query/mutate vs send/decode)?
 -  Does the order of items make sense? If not, how can they be better arranged?
