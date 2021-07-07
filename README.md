@@ -114,7 +114,7 @@ These methods allows dapps to interact with [supported wallet services](#TODO) i
 
 > :warning: **This method can only be used client side.**
 
-Used to authenticate the current user via any wallet that supports FCL. Once called, FCL will initiate communication with the configured `discovery.wallet` endpoint which lets the user select a wallet to login or sign up with. Once the wallet provider has authenticated the user, FCL will set the values on the [current user](#TODO) object.
+Used to authenticate the current user via any wallet that supports FCL. Once called, FCL will initiate communication with the configured `discovery.wallet` endpoint which lets the user select a wallet to login or sign up with. Once the wallet provider has authenticated the user, FCL will set the values on the [current user](##`CurrentUserObject`) object.
 
 ### Note
 
@@ -144,7 +144,7 @@ fcl.authenticate();
 
 > :warning: **This method can only be used client side.**
 
-Logs out the current user and sets the values on the [current user](#TODO) object to null.
+Logs out the current user and sets the values on the [current user](##`CurrentUserObject`) object to null.
 
 ### Note
 
@@ -424,6 +424,8 @@ _Pass in the following as a single object with the following keys.All keys are o
 ## Query and mutate the blockchain with Builders
 
 In some cases, you may want to build more complex interactions than what the `fcl.query` and `fcl.mutate` interface offer. To do this, FCL uses a pattern of building up an interaction with a combination of builders, resolving them, and sending them to the chain.
+
+> :warning: **Recommendation:** Unless you have a specific use case that require usage of these builders, you should be able to achieve most cases with `fcl.query({...options}` or `fcl.mutate({...options})`
 
 ## `fcl.send([...builders])`
 
@@ -859,7 +861,7 @@ Use [`fcl.getBlock`](##`fcl.getBlock`) and [`fcl.atBlockHeight`](##`fcl.atBlockH
 
 These builders are used to compose interactions with other builders such as scripts and transactions.
 
-> :warning: **_Deprecating soon_**. Unless you have a specific use case that require usage of these builders, you should be able to achieve most cases with `fcl.query({...options}` or `fcl.mutate({...options})`
+> :warning: **Recommendation:** Unless you have a specific use case that require usage of these builders, you should be able to achieve most cases with `fcl.query({...options}` or `fcl.mutate({...options})`
 
 ## `fcl.arg(value, type)`
 
@@ -1147,14 +1149,19 @@ useEffect(
 ---
 
 # Types, Interfaces, and Definitions
+---
 
 ## `Builders`
 
 Builders are modular functions that can be coupled together with `fcl.send([...builders])` to create an [Interaction](##`Interactions`). The builders needed to create an interaction depend on the script or transaction that is being sent.
 
+---
+
 ## `Interactions`
 
-An interaction is a a template containing a valid string of Cadence code that either a script or a transaction. Please read the guide on [FCL Interactions](https://github.com/onflow/kitty-items/blob/master/web/src/hooks/use-current-user.hook.js).
+An interaction is a a template containing a valid string of Cadence code that is either a valid script or transaction. Please read the guide on [FCL Interactions](https://github.com/onflow/kitty-items/blob/master/web/src/hooks/use-current-user.hook.js).
+
+---
 
 ## `CurrentUserObject`
 | Key | Value Type | Default | Description |
@@ -1167,13 +1174,7 @@ An interaction is a a template containing a valid string of Cadence code that ei
 | `loggedIn` | boolean | `null` | If the user is logged in. |
 | `services` | [ServiceObject] | `[]` |A list of services that offer specific functionality (eg. authorization) from the wallet provider to the logged in user. :tomato: More documentation coming soon. |
 
-addr: "0x130234d6c15d13a7"
-cid: "de88f086a545ce3c552d94634a374e43483258382d4a4154716572694e7848"
-expiresAt: undefined
-f_type: "USER"
-f_vsn: "1.0.0"
-loggedIn: true
-services: (6) [{…}, {…}, {…}, {…}, {…}, {…}]
+---
 
 ## `AuthorizationObject`
 
@@ -1184,6 +1185,8 @@ This type conforms to the interface required for FCL to authorize transaction on
 | `signingFunction` | function | A function that allows FCL to sign using the authorization details and produce a valid signature. |
 | `keyId` | number | The index of the key to use during authorization. (Multiple keys on an account is possible). |
 | `sequenceNum` | number | A number that is incremented per transaction using they keyId. |
+
+---
 
 ## `AccountObject`
 
@@ -1196,11 +1199,15 @@ The JSON representation of an account on the Flow blockchain.
 | `contracts` | Object: [Contract](##`contract`) | An object with keys as the contract name deployed and the value as the the cadence string. |
 | `keys` | [[KeyObject]](##`Key`) | Any contracts deployed to this account. |
 
+---
+
 ## `Address`
 
 | Value Type        | Description                                                                                                                     |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | string(formatted) | A valid Flow address should be 16 characters in length. <br>A `0x` prefix is optional during inputs. <br>eg. `f8d6e0586b0a20c1` |
+
+---
 
 ## `ArgumentObject`
 
@@ -1209,6 +1216,8 @@ An argument object created by `fcl.arg(value,type)`
 | ---- | ---------- | ----------- |
 | `value` | any | Any value to be used as an argument to a builder. |
 | `xform` | [FType](##`FType`) | Any of the supported types on Flow. |
+
+---
 
 ## `ArgumentFunction`
 
@@ -1224,9 +1233,60 @@ An function that takes the `fcl.arg` function and fcl types `t` and returns an a
 | `[fcl.args]` | Array of `fcl.args`. |
 | `xform` | [FType(s)](##`FType`) - Any of the supported types on Flow. |
 
-## `AuthorizationFunction`
+---
 
-:tomato: TODO
+## `Authorization Function`
+An authorization function must produce the information of the user that is going to sign and a signing function to use the information to produce a signature.
+
+:warning: This function is always async.
+
+:loudspeaker: By default FCL exposes `fcl.authz` that produces the authorization object for the current user (given they are signed in and only on the browser). Replace this with your own function that conforms to this interface to use it wherever an authorization object is needed.
+
+| Parameter Name | Value Type | Description |
+| ---- | ---------- | ----------- |
+| `account` | [AccountObject](##`AccountObject`) | The account of the user that is going to sign. |
+
+**Returns**
+| Value Type | Description |
+|----------- | ----------- |
+| Promise<[AuthorizationObject](##`AuthorizationObject`)> | The object that contains all the information needed by FCL to authorize a user's transaction. |
+
+---
+```javascript
+const authorizationFunction = async (account) => {
+    // authorization function need to return an account
+    const tempId = ${ADDRESS}-${KEY_ID}; 
+    const addr = fcl.sansPrefix(ADDRESS); 
+    const keyId = Number(KEY_ID); 
+    let signingFunction = async signable => {
+      return {
+        keyId,
+        addr: fcl.withPrefix(ADDRESS), 
+        signature: sign(process.env.FLOW_MINTER_PRIVATE_KEY, signable.message), 
+      }
+    }
+    return {
+    ...account,
+    addr,
+    keyId,
+    tempId,
+    signingFunction,
+  }
+```
+### Examples:
+- [Node.js Service using the service account to authorize a minter](https://github.com/onflow/kitty-items/blob/master/api/src/services/flow.ts)
+- [Detailed explanation](https://github.com/onflow/flow-js-sdk/blob/master/packages/fcl/src/wallet-provider-spec/authorization-function.md)
+
+--- 
+
+## `Signing Function`
+For more details view here:
+
+### Examples:
+- [Node.js Service using the service account to authorize a minter](https://github.com/onflow/kitty-items/blob/master/api/src/services/flow.ts)
+- [Detailed explanation](https://github.com/onflow/flow-js-sdk/blob/master/packages/fcl/src/wallet-provider-spec/authorization-function.md)
+
+---
 
 ## `TransactionRoles`
 
