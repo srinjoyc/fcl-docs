@@ -1188,6 +1188,18 @@ This type conforms to the interface required for FCL to authorize transaction on
 
 ---
 
+## `SignableObject`
+
+An object that contains all the information needed for FCL to sign a message with the user's signature.
+
+| Key | Value Type | Description |
+| ---- | ---------- | ----------- |
+| `addr` | [Address](##`Address`) | The address of the authorizer |
+| `keyId` | number | The index of the key to use during authorization. (Multiple keys on an account is possible). |
+| `signature` | function | A [SigningFunction](##`SigningFunction`) that can produce a valid signature for a user from a message. |
+
+---
+
 ## `AccountObject`
 
 The JSON representation of an account on the Flow blockchain.
@@ -1236,6 +1248,7 @@ An function that takes the `fcl.arg` function and fcl types `t` and returns an a
 ---
 
 ## `Authorization Function`
+
 An authorization function must produce the information of the user that is going to sign and a signing function to use the information to produce a signature.
 
 :warning: This function is always async.
@@ -1251,23 +1264,24 @@ An authorization function must produce the information of the user that is going
 |----------- | ----------- |
 | Promise<[AuthorizationObject](##`AuthorizationObject`)> | The object that contains all the information needed by FCL to authorize a user's transaction. |
 
+### Usage
 ---
 ```javascript
 const authorizationFunction = async (account) => {
     // authorization function need to return an account
-    const tempId = ${ADDRESS}-${KEY_ID}; 
-    const addr = fcl.sansPrefix(ADDRESS); 
+    const { address, keys } = account
+    const tempId = `${address}-${keys[process.env.minterAccountIndex]}`; 
     const keyId = Number(KEY_ID); 
     let signingFunction = async signable => {
       return {
         keyId,
-        addr: fcl.withPrefix(ADDRESS), 
-        signature: sign(process.env.FLOW_MINTER_PRIVATE_KEY, signable.message), 
+        addr: fcl.withPrefix(address), 
+        signature: sign(process.env.FLOW_MINTER_PRIVATE_KEY, signable.message), // signing function, read below
       }
     }
     return {
     ...account,
-    addr,
+    address,
     keyId,
     tempId,
     signingFunction,
@@ -1280,7 +1294,62 @@ const authorizationFunction = async (account) => {
 --- 
 
 ## `Signing Function`
-For more details view here:
+Consumes a payload and produces a signature for a transaction.
+
+:warning: This function is always async.
+
+:loudspeaker: Only write your own signing function if you are writing your own custom authorization function.
+
+### Payload
+Note: These values are destructed from the payload object in the first argument.
+
+| Parameter Name | Value Type | Description |
+| ---- | ---------- | ----------- |
+| `message` | string | The encoded string which needs to be used to produce the signature. |
+| `addr` | string | The encoded string which needs to be used to produce the signature. |
+| `keyId` | string | The encoded string which needs to be used to produce the signature. |
+| `roles` | string | The encoded string which needs to be used to produce the signature. |
+| `voucher` | object | The raw transactions information, can be used to create the message for additional safety and lack of trust in the supplied message. |
+
+**Returns**
+| Value Type | Description |
+|----------- | ----------- |
+| Promise<[SignableObject](##`SignableObject`)> | The object that contains all the information needed by FCL to authorize a user's transaction. |
+
+### Usage
+```javascript
+import * as fcl from "@onflow/fcl";
+import { ec as EC } from "elliptic";
+import { SHA3 } from "sha3";
+const ec: EC = new EC("p256");
+
+const produceSignature = (privateKey, msg) => {
+    const key = ec.keyFromPrivate(Buffer.from(privateKey, "hex"));
+    const sig = key.sign(this.hashMsg(msg));
+    const n = 32;
+    const r = sig.r.toArrayLike(Buffer, "be", n);
+    const s = sig.s.toArrayLike(Buffer, "be", n);
+    return Buffer.concat([r, s]).toString("hex");
+};
+
+const signingFunction = ({
+  message, // The encoded string which needs to be used to produce the signature.
+  addr, // The address of the Flow Account this signature is to be produced for.
+  keyId, // The keyId of the key which is to be used to produce the signature.
+  roles: {
+    proposer, // A Boolean representing if this signature to be produced for a proposer.
+    authorizer, // A Boolean representing if this signature to be produced for a authorizer.
+    payer, // A Boolean representing if this signature to be produced for a payer.
+  }, 
+  voucher, // The raw transactions information, can be used to create the message for additional safety and lack of trust in the supplied message.
+}) => {
+  return {
+    addr, // The address of the Flow Account this signature was produced for.
+    keyId, // The keyId for which key was used to produce the signature.
+    signature: produceSignature(message) // The hex encoded string representing the signature of the message.
+  }
+}
+```
 
 ### Examples:
 - [Node.js Service using the service account to authorize a minter](https://github.com/onflow/kitty-items/blob/master/api/src/services/flow.ts)
@@ -1288,9 +1357,15 @@ For more details view here:
 
 ---
 
-## `TransactionRoles`
+## `TransactionRolesObject`
 
-:tomato: TODO
+| Key Name        | Value Type        | Description                                          |
+| ----------------- | ---------------------------------------------------- |
+| proposer | boolean | A Boolean representing if this signature to be produced for a proposer.|
+| authorizer | boolean | A Boolean representing if this signature to be produced for an authorizer.|
+| payer | boolean | A Boolean representing if this signature to be produced for a payer. |
+
+For more on what each transaction role means, see [singing roles](https://docs.onflow.org/concepts/transaction-signing/#signer-roles).
 
 ## `EventName`
 
