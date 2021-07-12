@@ -491,7 +491,7 @@ In some cases, you may want to build more complex interactions than what the `fc
 
 Sends arbitrary scripts, transactions, and requests to Flow.
 
-This method onsumes an array of [builders](https://google.ca) that are to be resolved and sent. The builders required to be included in the array depend on the [interaction](##`Interactions`) that is being built.
+This method consumes an array of [builders](https://google.ca) that are to be resolved and sent. The builders required to be included in the array depend on the [interaction](##`Interactions`) that is being built.
 
 ### Note
 
