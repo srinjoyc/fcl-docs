@@ -542,7 +542,7 @@ const response = await fcl.send([
 
 ## `fcl.decode(response)`
 
-Decodes the response from `fcl.send()` into the appropriate JSON representation of all relevant keys and values returned from Cadence code.
+Decodes the response from `fcl.send()` into the appropriate JSON representation of any values returned from Cadence code.
 
 ### Note
 
