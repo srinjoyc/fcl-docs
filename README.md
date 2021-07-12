@@ -95,7 +95,7 @@ addStuff().then((d) => console.log(d)); // 13 (5 + 7 + 1)
 
 ## Address replacement in scripts and transactions
 
-Configuration keys that start with `0x` will be replaced in Cadence scripts and transactions input to FCL. Typically this is used to represent account addresses. Account addresses for the same contract will be different depending on the Flow network you're interacting with (eg. Testnet, Mainnet). 
+Configuration keys that start with `0x` will be used to find-and-replace their values in Cadence scripts and transactions input to FCL. Typically this is used to represent account addresses. Account addresses for the same contract will be different depending on the Flow network you're interacting with (eg. Testnet, Mainnet). 
 This allows you to write your script or transaction once and not have to update code when you point your application at a different Flow network.
 
 ```javascript
