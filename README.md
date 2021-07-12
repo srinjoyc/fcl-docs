@@ -366,12 +366,61 @@ Equivalent to `fcl.authz` **(recommended)**.
 
 ---
 
-## `fcl.currentUser().signUserMessage(msg, opts)`
+## `fcl.currentUser().signUserMessage(msg)`
 
-:tomato: Coming soon.
+A method to use allowing current user to personally sign data via FCL Compatible Wallets. 
+
+> :Note: **Requires authentication with an authorized signing service.**
+
+### Arguments
+
+| Name       | Type     | Description                                                                                                                               |
+| ---------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `msg` | string | A hexadecimal string to be signed |
+
+### Usage
+
+```javascript
+import * as fcl from "@onflow/fcl";
+
+export const signMessage = async () => {
+  const MSG = Buffer.from("FOO").toString("hex")
+  try {
+    return await currentUser().signUserMessage(MSG)
+  } catch (error) {
+    console.log(error)
+  }
+}
+```
 
 ---
+## `fcl.currentUser().verifyUserSignatures(message, compositeSignatures)`
 
+A method allowing application to cryptographically verify the ownership of a Flow account by signing a piece of data using a private key.
+Use cases include, Authentication, improved Application Login, message verification and others.
+
+### Arguments
+
+| Name       | Type     | Description                                                                                                                               |
+| ---------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `message` | string | A signed hexadecimal string |
+| `compositeSignatures` | Array | An array of `CompositeSignatures` |
+
+### Usage
+
+```javascript
+import * as fcl from "@onflow/fcl";
+
+const verifySignature = async (message, compositeSignatures) => {
+  try {
+    return await verifyUserSignature(message, compositeSignatures)
+  } catch (error) {
+    console.log(error)
+  }
+}
+```
+
+---
 # On-chain Interactions
 
 > :loudspeaker: **These methods can be used both on the client and server.**
