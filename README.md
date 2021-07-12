@@ -147,7 +147,7 @@ These methods allows dapps to interact with [supported wallet services](#TODO) i
 
 ## `fcl.authenticate()`
 
-> :warning: **This method can only be used client side.**
+> :warning: **This method can only be used in web browsers.**
 
 Used to authenticate the current user via any wallet that supports FCL. Once called, FCL will initiate communication with the configured `discovery.wallet` endpoint which lets the user select a wallet to login or sign up with. Once the wallet provider has authenticated the user, FCL will set the values on the [current user](##`CurrentUserObject`) object.
 
