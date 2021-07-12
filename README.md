@@ -432,8 +432,12 @@ Allows you to submit transactions to the blockchain to potentially mutate the st
 
 :warning: When being used in the browser, `fcl.mutate` uses the built-in `fcl.authz` function to produce the authorization (signatures) for the current user. When calling this method from Node, you will need to supply your own custom authorization function.
 
+
 #### Example
-- [Authorization function for Node](https://github.com/onflow/kitty-items/blob/master/api/src/services/flow.ts) - it is reccomended to use `fcl.mutate` instead of `fcl.send(...).then(fcl.decode)`
+
+- [Authoization function docs](#signing-function)
+
+- [Example authorization function (Node)](https://github.com/onflow/kitty-items/blob/master/api/src/services/flow.ts) - it is reccomended to use `fcl.mutate` instead of `fcl.send(...).then(fcl.decode)`
 
 ### Options
 
