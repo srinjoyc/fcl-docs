@@ -284,11 +284,6 @@ const txId = await fcl.mutate({
   authorizations: [fcl.authz], // optional - default is [fcl.authz]
 });
 ```
-
-### Examples
-
-- [TODO] 
-
 ---
 
 ## Current User
@@ -435,10 +430,10 @@ console.log(result); // 13
 ## `fcl.mutate({...options})`
 Allows you to submit transactions to the blockchain to potentially mutate the state.
 
-:warning: When being used in the browser, `fcl.mutate` uses `fcl.authz` to produce the authorization for the current user. When calling this method from Node, you will need to supply your own custom authorization and signing functions.
+:warning: When being used in the browser, `fcl.mutate` uses the built-in `fcl.authz` function to produce the authorization (signatures) for the current user. When calling this method from Node, you will need to supply your own custom authorization function.
 
 #### Example
-- [Node Service to authorize transactions using builders](https://github.com/onflow/kitty-items/blob/master/api/src/services/flow.ts) - it is reccomended to use `fcl.mutate` instead of `fcl.send(...).then(fcl.decode)`
+- [Authorization function for Node](https://github.com/onflow/kitty-items/blob/master/api/src/services/flow.ts) - it is reccomended to use `fcl.mutate` instead of `fcl.send(...).then(fcl.decode)`
 
 ### Options
 
@@ -543,7 +538,7 @@ const response = await fcl.send([
 
 ## `fcl.decode(response)`
 
-Decodes the response from `fcl.send()` into the appropriate JSON representation of all relevant keys and values.
+Decodes the response from `fcl.send()` into the appropriate JSON representation of all relevant keys and values returned from Cadence code.
 
 ### Note
 
@@ -726,6 +721,7 @@ await fcl.send([fcl.getBlock(), fcl.atBlockId("23232323232")]).then(fcl.decode);
 ## `fcl.getBlockHeader()`
 
 A builder function that returns the interaction to get a block header.
+
 :loudspeaker: Use with `fcl.atBlockId()` and `fcl.atBlockHeight()` when building the interaction to get information for older blocks.
 
 ### Returns after decoding
@@ -747,7 +743,9 @@ const latestBlockHeader = await fcl
 ## `fcl.getEventsAtBlockHeightRange(eventName,fromBlockHeight,toBlockHeight)`
 
 A builder function that returns all instances of a particular event (by name) within a height range.
-:warning: The block range provided must be from the current spork. All events emitted during past sporks is current unavailable.
+
+:warning: The block range provided must be from the current spork.
+
 :warning: The block range provided must be 250 blocks or lower per request.
 
 ### Arguments
@@ -784,9 +782,9 @@ const events = await fcl
 
 ## `fcl.getEventsAtBlockIds(eventName,[...blockIds])`
 
-A builder function that returns all instances of a particular event (by name) within a set of blocks specified by block ids.
+A builder function that returns all instances of a particular event (by name) within a set of blocks, specified by block ids.
 
-:warning: The block range provided must be from the current spork. All events emitted during past sporks is current unavailable.
+:warning: The block range provided must be from the current spork.
 
 ### Arguments
 
@@ -823,6 +821,7 @@ const events = await fcl
 A builder function that returns the status of transaction.
 
 :warning: The transactionID provided must be from the current spork.
+
 :loudspeaker: Considering [subscribing to the transaction from `fcl.tx(id)`](<##`fcl.tx(transactionId)>) instead of calling this method directly.
 
 ### Arguments
@@ -861,6 +860,7 @@ const status = await fcl
 A builder function that returns a [transaction object](##TransactionObject>) once decoded.
 
 :warning: The transactionID provided must be from the current spork.
+
 :loudspeaker: Considering using [`fcl.tx(id).onceSealed()`](<##`fcl.tx(transactionId)>) instead of calling this method directly.
 
 ### Arguments
@@ -1003,12 +1003,13 @@ await fcl
 
 ## Template Builders
 
-> :warning: **_Deprecating soon_**. Unless you have a specific use case that require usage of these builders, you should be able to achieve most cases with `fcl.query({...options}` or `fcl.mutate({...options})`
+> :warning: **_Deprecating soon_**. The following functionality is replaced by [`fcl.query({...options}`](##`fcl.query({...options})`) or [`fcl.mutate({...options})`](##`fcl.mutate({...options})`)
 
 ## `fcl.script(CODE)`
 
 A template builder to use a Cadence script for an interaction.
-:loudspeaker: Use with `fcl.args[...]` to pass in arguments dynamically.
+
+:loudspeaker: Use with `fcl.args(...)` to pass in arguments dynamically.
 
 ### Arguments
 
@@ -1106,7 +1107,6 @@ const account = await fcl.account("0x1d007d755706c469");
 ## `fcl.latestBlock(isSealed)`
 
 A pre-built interaction that returns the latest block (optionally sealed or not).
-:tomato: UNSURE OF THE ARGUMENTS.
 
 ### Arguments
 
@@ -1164,7 +1164,7 @@ useEffect(() => fcl.tx(txId).subscribe(setTxStatus));
 ### Examples
 
 - [React Effect to get the transaction status on submit](https://github.com/onflow/flow-port/blob/staging/src/pages/transaction-status.js#L158-L183)
-- Kitty items example :tomato: Fill in
+- [Example usage in Kitty Items app](https://github.com/onflow/kitty-items/blob/master/web/src/flow/util/tx.js#L21-L22)
 
 ---
 
