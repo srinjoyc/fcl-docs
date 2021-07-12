@@ -298,7 +298,7 @@ Holds the [current user](##`CurrentUserObject`) if set and offers a set of funct
 
 ## `fcl.currentUser().subscribe(callback)`
 
-Subscribe to changes in the currently authorized user. The callback will be called when the user authenticates and un-authenticates, making it easy to update the UI accordingly.
+The callback passed to subscribe will be called when the user authenticates and un-authenticates, making it easy to update the UI accordingly.
 
 ### Arguments
 
