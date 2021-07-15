@@ -51,13 +51,21 @@ FCL has a mechanism that lets you configure various aspects of FCL. When you mov
 
 Values only need to be set once. We recommend doing this once and as early in the life cycle as possible. To set a configuration value, the `put` method on the `config` instance needs to be called, the `put` method returns the `config` instance so they can be chained.
 
+Alternatively, you can set the config by passing a JSON object directly.
+
 ```javascript
 import * as fcl from "@onflow/fcl";
 
-fcl
-  .config() // returns the config instance
+fcl.config() // returns the config instance
   .put("foo", "bar") // configures "foo" to be "bar"
   .put("baz", "buz"); // configures "baz" to be "buz"
+
+// OR
+
+fcl.config({
+  "foo": "bar",
+  "baz": "buz",
+})
 ```
 
 ## Getting Configuration Values
@@ -86,7 +94,7 @@ addStuff().then((d) => console.log(d)); // 13 (5 + 7 + 1)
 
 | Name                            | Example                                              | Description                                                                                               |
 | ------------------------------- | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `accessNode.api` **(required)** | `https://access-testnet.onflow.org`                  | API URL for the Flow Blockchain Access Node you want to be communicating with. See list here.             |
+| `accessNode.api` **(required)** | `https://access-testnet.onflow.org`                  | API URL for the Flow Blockchain Access Node you want to be communicating with. See all available access node endpoints [here](https://docs.onflow.org/access-api/#flow-access-node-endpoints).             |
 | `env`                           | `testnet`                                            | Used in conjunction with stored interactions. Possible values: `local`, `canarynet`, `testnet`, `mainnet` |
 | `discovery.wallet`              | `https://fcl-discovery.onflow.org/testnet/authn`     | Points FCL at the Wallet or Wallet Discovery mechanism.                                                   |
 | `app.detail.title`              | `Cryptokitties`                                      | Your applications title, can be requested by wallets and other services.                                  |
@@ -95,7 +103,9 @@ addStuff().then((d) => console.log(d)); // 13 (5 + 7 + 1)
 
 ## Address replacement in scripts and transactions
 
-Configuration keys that start with `0x` will be replaced in FCL scripts and transactions, this allows you to write your script or transaction Cadence code once and not have to change it when you point your application at a difference instance of the Flow Blockchain.
+Configuration keys that start with `0x` will be used to find-and-replace their values in Cadence scripts and transactions input to FCL. 
+
+Typically this is used to represent account addresses. Account addresses for the same contract will be different depending on the Flow network you're interacting with (eg. Testnet, Mainnet). This allows you to write your script or transaction once and not have to update code when you point your application at a different Flow network.
 
 ```javascript
 import * as fcl from "@onflow/fcl";
@@ -133,13 +143,12 @@ fcl
   .put("0xFlowToken", "0x7e60df042a9c0868");
 ```
 
-> :tomato: left out openID scopes
-
 ---
 
 # Wallet Interactions
 
-These methods allows dapps to interact with [supported wallet services](#TODO) in order to authenticate the user and authorize transactions on their behalf.
+These methods allows dapps to interact with FCL compatible wallets in order to authenticate the user and authorize transactions on their behalf.
+> :warning:  These methods are **async**.
 
 ## Methods
 
@@ -147,9 +156,9 @@ These methods allows dapps to interact with [supported wallet services](#TODO) i
 
 ## `fcl.authenticate()`
 
-> :warning: **This method can only be used client side.**
+> :warning: **This method can only be used in web browsers.**
 
-Used to authenticate the current user via any wallet that supports FCL. Once called, FCL will initiate communication with the configured `discovery.wallet` endpoint which lets the user select a wallet to login or sign up with. Once the wallet provider has authenticated the user, FCL will set the values on the [current user](##`CurrentUserObject`) object.
+Calling this method will authenticate the current user via any wallet that supports FCL. Once called, FCL will initiate communication with the configured `discovery.wallet` endpoint which lets the user select a wallet. Once the wallet provider has authenticated the user, FCL will set the values on the [current user](##`CurrentUserObject`) object.
 
 ### Note
 
@@ -171,13 +180,13 @@ fcl.authenticate();
 
 ### Examples
 
-- [React Hook to manage FCL authentication](https://github.com/onflow/kitty-items/blob/master/web/src/hooks/use-current-user.hook.js)
+- [React Hook to manage FCL authentication: Kitty Items](https://github.com/onflow/kitty-items/blob/master/web/src/hooks/use-current-user.hook.js)
 
 ---
 
 ## `fcl.unauthenticate()`
 
-> :warning: **This method can only be used client side.**
+> :warning: **This method can only be used in web browsers.**
 
 Logs out the current user and sets the values on the [current user](##`CurrentUserObject`) object to null.
 
@@ -199,13 +208,13 @@ fcl.unauthenticate();
 
 ### Examples
 
-- [React Hook to manage FCL authentication](https://github.com/onflow/kitty-items/blob/master/web/src/hooks/use-current-user.hook.js)
+- [React Hook to manage FCL authentication: Kitty-items](https://github.com/onflow/kitty-items/blob/master/web/src/hooks/use-current-user.hook.js)
 
 ---
 
 ## `fcl.reauthenticate()`
 
-> :warning: **This method can only be used client side.**
+> :warning: **This method can only be used in web browsers.**
 
 A **convenience method** that calls `fcl.unauthenticate()` and then `fcl.authenticate()` for the current user.
 
@@ -226,29 +235,31 @@ fcl.reauthenticate();
 
 ### Examples
 
-- [React Hook to manage FCL authentication](https://github.com/onflow/kitty-items/blob/master/web/src/hooks/use-current-user.hook.js)
+- [React Hook to manage FCL authentication: Kitty-items](https://github.com/onflow/kitty-items/blob/master/web/src/hooks/use-current-user.hook.js)
 
 ---
 
 ## `fcl.signUp()`
 
-> :warning: **This method can only be used client side.**
+> :warning: **This method can only be used in web browsers.**
 
-A **convenience method** that calls [`fcl.authenticate()`](#fcltransactioncode).
+A **convenience method** that calls and is equivalent to [`fcl.authenticate()`](#fcltransactioncode).
 
 ---
 
 ## `fcl.login()`
 
-> :warning: **This method can only be used client side.**
+> :warning: **This method can only be used in web browsers.**
 
-A **convenience method** that calls [`fcl.authenticate()`](<##`fcl.authenticate()`>).
+A **convenience method** that calls and is equivalent to [`fcl.authenticate()`](<##`fcl.authenticate()`>).
 
 ---
 
 ## `fcl.authz`
 
-A **convenience method** that produces the needed authorization details for the current user to submit transactions to Flow. It defines a signing function that will be used with the current user's details to produce signatures to submit transactions.
+A **convenience method** that produces the needed authorization details for the current user to submit transactions to Flow. It defines a signing function that connects to a user's wallet provider to produce signatures to submit transactions.
+
+> :loudspeaker: You can replace this function with your own [authorization function](##`AuthorizationFunction`) if needed.
 
 ### Returns
 
@@ -258,7 +269,7 @@ A **convenience method** that produces the needed authorization details for the 
 
 ### Usage
 
-**Note:** The `fcl.mutate` example below is showing how `fcl.authz` is used under the hood. The default values for `proposer`, `payer`, and `authorizations` are already `fcl.authz` so there is no need to include these parameters.
+**Note:** The `fcl.mutate` example below is showing how `fcl.authz` is used under the hood. The default values for `proposer`, `payer`, and `authorizations` are already `fcl.authz` so there is no need to include these parameters. See more on [signing roles](https://docs.onflow.org/concepts/accounts-and-keys/#signing-a-transaction).
 
 ```javascript
 import * as fcl from "@onflow/fcl";
@@ -285,17 +296,13 @@ const txId = await fcl.mutate({
 });
 ```
 
-### Examples
-
-- [Node Service to authorize transactions using builders](https://github.com/onflow/kitty-items/blob/master/api/src/services/flow.ts) - it is reccomended to use `fcl.mutate` instead of `fcl.send(...).then(fcl.decode)`
-
 ---
 
 ## Current User
 
-Holds the [current user](##`CurrentUserObject`) if set and offers a set of functions to manage the authentication and authorization of the user.
+Holds the [current user](##`CurrentUserObject`), if set, and offers a set of functions to manage the authentication and authorization of the user.
 
-> :warning: **The following methods can only be used client side.**
+> :warning: **The following methods can only be used in web browsers.**
 
 ## Methods
 
@@ -303,7 +310,7 @@ Holds the [current user](##`CurrentUserObject`) if set and offers a set of funct
 
 ## `fcl.currentUser().subscribe(callback)`
 
-A method to use with your state management tool of choice to set and unset the current user based on the authentication functions.
+The callback passed to subscribe will be called when the user authenticates and un-authenticates, making it easy to update the UI accordingly.
 
 ### Arguments
 
@@ -366,27 +373,16 @@ Equivalent to `fcl.authz` **(recommended)**.
 
 ---
 
-## `fcl.currentUser().signUserMessage(msg, opts)`
-
-:tomato: Coming soon.
-
----
-
 # On-chain Interactions
 
-> :loudspeaker: **These methods can be used both on the client and server.**
+> :loudspeaker: **These methods can be used in browsers and NodeJS.**
 
-These methods allows dapps to interact directly with the Flow blockchain via a set of functions that currently use the [Access Node API](https://docs.onflow.org/access-api/) along with some other utilities to make it easier to send and decode responses. This set of functionality is similar to what is offered in other [SDKs](https://docs.onflow.org/sdks/) but allows for greater composability and customizability.
-
-**In general, all interactions need to be built and sent to the chain via `fcl.send()` and then decoded via `fcl.decode()` with the exception below.**
-
-:warning: **To simplify the send and decode pattern, FCL introduced [`fcl.query`](#TODO) and [`fcl.mutate`](#TODO)**. :tomato: UNSURE: Eventually, FCL will abstract most functionality offered by builders into these methods, but until then, there are still some cases where you will need to use builders - specifically for polling events, running scripts or transactions at a historical block, and ... :tomato: WHAT ELSE?.
+These methods allows dapps to interact directly with the Flow blockchain via a set of functions that currently use the [Access Node API](https://docs.onflow.org/access-api/).
 
 ## Methods
-
 ---
 
-## Query and mutate the blockchain with Cadence
+## Query and Mutate Flow with Cadence
 
 If you want to run arbitrary Cadence scripts on the blockchain, these methods offer a convenient way to do so **without having to build, send, and decode interactions**.
 
