@@ -1,38 +1,3 @@
-# Feedback Instructions
-
-**1st TODO:**
-- Read the full document as if you were a first time FCL user (who has read the quick start and maybe looked at the kitty-items example and read some introduction somewhere about FCL).
-
-**2nd TODO** - Please check for the following after reading it over:
--  Do all the explanations of the functions make sense and are they accurate?
--  Are the examples listed accurate/functional for their respective section? (note: could use help filling these out, many are known to be missing/broken.)
--  Do the :warning: and :loudspeaker: used properly and do they make sense?
--  Is it clear what the recommendation is (especially in terms of query/mutate vs send/decode)?
--  Does the order of items make sense? If not, how can they be better arranged?
--  Is the tone of the writing reasonable and is there any places it should be changed/reworded?
--  From your knowledge, is anything missing that should be in the reference for FCL? *(note: guides and tutorials with more hands-on help will be created elsewhere)*
-
-**3rd TODO** - Submit Feedback:
--  Do all the explanations of the functions make sense and are they accurate?
--  Are the examples listed accurate/functional for their respective section?
--  Do the :warning: and :loudspeaker: used properly and do they make sense?
--  Is it clear what the recommendation is (especially in terms of query/mutate vs send/decode)?
--  Does the order of items make sense? If not, how can they be better arranged?
--  From your knowledge, is anything missing?
-
-**4th TODO (optional)** - Take a look at the :tomato:'s and see if there is any additional context/info you can provide. Some tomato's are there as a reminder to fill in (ie. all the Flow types) which you can ignore, but others have questions or blanks for certain things, those are the ones that need some attention.
-
-**How to submit (in order of preference)**
-1. Direct PR with proposed changes and/or answers to the above questions.
-2. A document of any kind sent over by slack or email.
-3. Informal slack message with feedback
-4. Meeting to deliver verbal feedback
-
-**Note:** It's very important we get several people to look at this before putting this out, so an informal slack message with some feedback is always better than none!
-
-
-**Note**: Don't worry about broken links and minor spelling mistakes, those will be fixed at the end.
-
 # Flow Client Library (FCL) API Reference
 
 **Version**: 0.73.0
@@ -40,6 +5,87 @@
 **Last Updated**: July 16, 2021
 
 **Github**: https://github.com/onflow/flow-js-sdk/
+
+- [Configuration](#configuration)
+  * [Setting Configuration Values](#setting-configuration-values)
+  * [Getting Configuration Values](#getting-configuration-values)
+  * [Common Configuration Keys](#common-configuration-keys)
+  * [Address replacement in scripts and transactions](#address-replacement-in-scripts-and-transactions)
+  * [Example](#example)
+- [Wallet Interactions](#wallet-interactions)
+  * [`fcl.authenticate()`](#-fclauthenticate---)
+  * [`fcl.unauthenticate()`](#-fclunauthenticate---)
+  * [`fcl.reauthenticate()`](#-fclreauthenticate---)
+  * [`fcl.signUp()`](#-fclsignup---)
+  * [`fcl.login()`](#-fcllogin---)
+  * [`fcl.authz`](#-fclauthz-)
+  * [Current User](#current-user)
+  * [`fcl.currentUser().subscribe(callback)`](#-fclcurrentuser--subscribe-callback--)
+  * [`fcl.currentUser().snapshot()`](#-fclcurrentuser--snapshot---)
+  * [`fcl.currentUser().authenticate()`](#-fclcurrentuser--authenticate---)
+  * [`fcl.currentUser().unauthenticate()`](#-fclcurrentuser--unauthenticate---)
+  * [`fcl.currentUser().authorization()`](#-fclcurrentuser--authorization---)
+- [On-chain Interactions](#on-chain-interactions)
+  * [Query and Mutate Flow with Cadence](#query-and-mutate-flow-with-cadence)
+  * [`fcl.query({...options})`](#-fclquery--options---)
+  * [`fcl.mutate({...options})`](#-fclmutate--options---)
+  * [Query and mutate the blockchain with Builders](#query-and-mutate-the-blockchain-with-builders)
+  * [`fcl.send([...builders])`](#-fclsend--builders---)
+  * [`fcl.decode(response)`](#-fcldecode-response--)
+  * [Builders](#builders)
+    + [Query Builders](#query-builders)
+  * [`fcl.getAccount(address)`](#-fclgetaccount-address--)
+  * [`fcl.getBlock(isSealed)`](#-fclgetblock-issealed--)
+  * [`fcl.atBlockHeight(blockHeight)`](#-fclatblockheight-blockheight--)
+  * [`fcl.atBlockId(blockId)`](#-fclatblockid-blockid--)
+  * [`fcl.getBlockHeader()`](#-fclgetblockheader---)
+  * [`fcl.getEventsAtBlockHeightRange(eventName,fromBlockHeight,toBlockHeight)`](#-fclgeteventsatblockheightrange-eventname-fromblockheight-toblockheight--)
+  * [`fcl.getEventsAtBlockIds(eventName,[...blockIds])`](#-fclgeteventsatblockids-eventname--blockids---)
+  * [`fcl.getCollection(collectionID)`](#-fclgetcollection-collectionid--)
+  * [`fcl.getTransactionStatus(transactionId)`](#-fclgettransactionstatus-transactionid--)
+  * [`fcl.getTransaction(transactionId)`](#-fclgettransaction-transactionid--)
+  * [`fcl.getEvents(eventName,fromBlock,toBlock)` - Deprecated](#-fclgetevents-eventname-fromblock-toblock-----deprecated)
+  * [`fcl.getLatestBlock(isSealed)` - Deprecated](#-fclgetlatestblock-issealed-----deprecated)
+  * [`fcl.getBlockById(blockId)` - Deprecated](#-fclgetblockbyid-blockid-----deprecated)
+  * [`fcl.getBlockByHeight(blockHeight)` - Deprecated](#-fclgetblockbyheight-blockheight-----deprecated)
+  * [Utility Builders](#utility-builders)
+  * [`fcl.arg(value, type)`](#-fclarg-value--type--)
+  * [`fcl.args([...args])`](#-fclargs--args---)
+  * [Template Builders](#template-builders)
+  * [`fcl.script(CODE)`](#-fclscript-code--)
+  * [`fcl.transaction(CODE)`](#-fcltransaction-code--)
+  * [Pre-built Interactions](#pre-built-interactions)
+  * [`fcl.account(address)`](#-fclaccount-address--)
+  * [`fcl.latestBlock(isSealed)`](#-fcllatestblock-issealed--)
+  * [Transaction Status Utility](#transaction-status-utility)
+  * [`fcl.tx(transactionId)`](#-fcltx-transactionid--)
+  * [Event Polling Utility](#event-polling-utility)
+  * [`fcl.events(eventName)`](#-fclevents-eventname--)
+- [Types, Interfaces, and Definitions](#types--interfaces--and-definitions)
+  * [`Builders`](#-builders-)
+  * [`Interactions`](#-interactions-)
+  * [`CurrentUserObject`](#-currentuserobject-)
+  * [`AuthorizationObject`](#-authorizationobject-)
+  * [`SignableObject`](#-signableobject-)
+  * [`AccountObject`](#-accountobject-)
+  * [`Address`](#-address-)
+  * [`ArgumentObject`](#-argumentobject-)
+  * [`ArgumentFunction`](#-argumentfunction-)
+  * [`Authorization Function`](#-authorization-function-)
+  * [`Signing Function`](#-signing-function-)
+  * [`TransactionRolesObject`](#-transactionrolesobject-)
+  * [`EventName`](#-eventname-)
+  * [`Contract`](#-contract-)
+  * [`KeyObject`](#-keyobject-)
+  * [`BlockObject`](#-blockobject-)
+  * [`BlockHeaderObject`](#-blockheaderobject-)
+  * [`CollectionGuaranteeObject`](#-collectionguaranteeobject-)
+  * [`CollectionObject`](#-collectionobject-)
+  * [`ResponseObject`](#-responseobject-)
+  * [`Event Object`](#-event-object-)
+  * [`Transaction Statuses`](#-transaction-statuses-)
+  * [`GRPC Statuses`](#-grpc-statuses-)
+  * [`FType`](#-ftype-)
 
 # Configuration
 
@@ -259,17 +305,17 @@ A **convenience method** that calls and is equivalent to [`fcl.authenticate()`](
 
 A **convenience method** that produces the needed authorization details for the current user to submit transactions to Flow. It defines a signing function that connects to a user's wallet provider to produce signatures to submit transactions.
 
-> :loudspeaker: You can replace this function with your own [authorization function](##`AuthorizationFunction`) if needed.
+> :loudspeaker: You can replace this function with your own [authorization function](##authorization-function) if needed.
 
 ### Returns
 
 | Type                                           | Description                                                                                              |
 | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| [AuthorizationObject](##`AuthorizationObject`) | An object containing the necessary details from the current user to authorize a transaction in any role. |
+| [AuthorizationObject](##AuthorizationObject) | An object containing the necessary details from the current user to authorize a transaction in any role. |
 
 ### Usage
 
-**Note:** The `fcl.mutate` example below is showing how `fcl.authz` is used under the hood. The default values for `proposer`, `payer`, and `authorizations` are already `fcl.authz` so there is no need to include these parameters. See more on [signing roles](https://docs.onflow.org/concepts/accounts-and-keys/#signing-a-transaction).
+**Note:** The default values for `proposer`, `payer`, and `authorizations` are already `fcl.authz` so there is no need to include these parameters, it is shown only for example purposes. See more on [signing roles](https://docs.onflow.org/concepts/accounts-and-keys/#signing-a-transaction).
 
 ```javascript
 import * as fcl from "@onflow/fcl";
@@ -352,6 +398,16 @@ export function AuthCluster() {
 ## `fcl.currentUser().snapshot()`
 
 Returns the [current user](##`CurrentUserObject`) object. This is the same object that is set and available on [`fcl.currentUser().subscribe(callback)`](<##`fcl.currentUser().subscribe(callback)`>).
+
+### Usage
+
+```javascript
+// returns the current user object
+const user = fcl.currentUser().snapshot()
+
+// subscribes to the current user object and logs to console on changes
+fcl.currentUser().subscribe(console.log)
+```
 
 ---
 
