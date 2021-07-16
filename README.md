@@ -37,7 +37,7 @@
 
 **Version**: 0.73.0
 
-**Last Updated**: July 7, 2021
+**Last Updated**: July 16, 2021
 
 **Github**: https://github.com/onflow/flow-js-sdk/
 
@@ -158,7 +158,7 @@ These methods allows dapps to interact with FCL compatible wallets in order to a
 
 > :warning: **This method can only be used in web browsers.**
 
-Calling this method will authenticate the current user via any wallet that supports FCL. Once called, FCL will initiate communication with the configured `discovery.wallet` endpoint which lets the user select a wallet. Once the wallet provider has authenticated the user, FCL will set the values on the [current user](##`CurrentUserObject`) object.
+Calling this method will authenticate the current user via any wallet that supports FCL. Once called, FCL will initiate communication with the configured `discovery.wallet` endpoint which lets the user select a wallet to authenticate with. Once the wallet provider has authenticated the user, FCL will set the values on the [current user](##CurrentUserObject) object for future use and authorization.
 
 ### Note
 
@@ -180,7 +180,7 @@ fcl.authenticate();
 
 ### Examples
 
-- [React Hook to manage FCL authentication: Kitty Items](https://github.com/onflow/kitty-items/blob/master/web/src/hooks/use-current-user.hook.js)
+- [Press Login: Live Kitty Items](http://kitty-items-flow-testnet.herokuapp.com/)
 
 ---
 
