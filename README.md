@@ -814,6 +814,38 @@ const events = await fcl
 ```
 
 ---
+## `fcl.getCollection(collectionID)`
+
+A builder function that returns all a collection containing a list of transaction ids by its collection id.
+
+:warning: The block range provided must be from the current spork. All events emitted during past sporks is current unavailable.
+
+### Arguments
+
+| Name        | Type                       | Description                               |
+| ----------- | -------------------------- | ----------------------------------------- |
+| `collectionID` | string | The id of the collection.                    |
+
+
+### Returns after decoding
+
+| Type                             | Description                                    |
+| -------------------------------- | ---------------------------------------------- |
+| [CollectionObject](##`CollectionObject`) | An object with the id and a list of transactions within the requested collection. |
+
+### Usage
+
+```javascript
+import * as fcl from "@onflow/fcl";
+
+const collection = await fcl
+  .send([
+    fcl.getCollection("cccdb0c67d015dc7f6444e8f62a3244ed650215ed66b90603006c70c5ef1f6e5")
+  ])
+  .then(fcl.decode);
+```
+
+---
 
 ## `fcl.getTransactionStatus(transactionId)`
 
@@ -1471,19 +1503,37 @@ The JSON representation of a key on the Flow blockchain.
 | `parentId` | string | The id of the parent block. |
 | `height` | number | The height of the block. |
 | `timestamp` | object | Contains time related fields. |
-| `collectionGuarantees` | [] | :tomato: TODO |
+| `collectionGuarantees` | [[CollectionGuaranteeObject]](##`BlockObject`) | Contains the ids of collections included in the block. |
 | `blockSeals` | [[SealedBlockObject]](##`SealedBlockObject`) | The details of which nodes executed and sealed the blocks. |
 | `signatures` | Uint8Array([numbers]) | All signatures. |
 
 ## `BlockHeaderObject`
 
 The subset of the [BlockObject](##`BlockObject`) containing only the header values of a block.
+
 | Key | Value Type | Description |
 | ---- | ---------- | ----------- |
 | `id` | string | The id of the block. |
 | `parentId` | string | The id of the parent block. |
 | `height` | number | The height of the block. |
 | `timestamp` | object | Contains time related fields. |
+
+## `CollectionGuaranteeObject`
+
+A collection that has been included in a block.
+
+| Key | Value Type | Description |
+| ---- | ---------- | ----------- |
+| `collectionId` | string | The id of the block. |
+| `signatures` | [SignatureObject] | All signatures. |
+
+## `CollectionObject`
+
+A collection is a list of transactions that are contained in the same block.
+| Key | Value Type | Description |
+| ---- | ---------- | ----------- |
+| `id` | string | The id of the collection. |
+| `transactionIds` | [string] | The ids of the transactions included in the collection. |
 
 ## `ResponseObject`
 
