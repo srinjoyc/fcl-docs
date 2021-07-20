@@ -1291,21 +1291,15 @@ A utility function that lets you set the transaction to get subsequent status up
 
 ```javascript
 import * as fcl from "@onflow/fcl";
-
-const { eventKey } = useParams();
-const [events, setEvents] = useState([]);
-useEffect(
-  () =>
-    fcl.events(eventKey).subscribe((event) => {
-      setEvents((oldEvents) => [...oldEvents, event]);
-    }),
-  [eventKey]
-);
+// in some react component
+fcl.events(eventKey).subscribe((event) => {
+  console.log(event)
+})
 ```
 
 ### Examples
 
-- Flow view source example :tomato: Fill in
+- [Flow-view-source example](https://github.com/orodio/flow-view-source/blob/master/src/pages/event.comp.js)
 
 ---
 
