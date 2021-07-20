@@ -33,7 +33,7 @@
   * [`fcl.send([...builders])`](#-fclsend--builders---)
   * [`fcl.decode(response)`](#-fcldecode-response--)
   * [Builders](#builders)
-    + [Query Builders](#query-builders)
+  * [Query Builders](#query-builders)
   * [`fcl.getAccount(address)`](#-fclgetaccount-address--)
   * [`fcl.getBlock(isSealed)`](#-fclgetblock-issealed--)
   * [`fcl.atBlockHeight(blockHeight)`](#-fclatblockheight-blockheight--)
@@ -656,7 +656,7 @@ build, resolve, and send it to the blockchain. A valid populated template is ref
 
 :warning: **These methods must be used with `fcl.send([...builders]).then(fcl.decode)`**
 
-### Query Builders
+## Query Builders
 
 ## `fcl.getAccount(address)`
 
