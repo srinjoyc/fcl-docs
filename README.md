@@ -1619,20 +1619,16 @@ The format of all responses in FCL returned from `fcl.send(...)`. For full detai
 
 ## `Event Object`
 
-The format of all responses in FCL returned from `fcl.send(...)`
 | Key | Value Type | Description |
 | ---- | ---------- | ----------- |
-| `tag` | string | :tomato: TODO |
-| `transaction` | [Transaction](##`Transaction`) | :tomato: TODO |
-| `transactionStatus` | [TransactionStatus](##`TransactionStatus`) | :tomato: TODO |
-| `transactionId` | [TransactionId](##`TransactionId`) | :tomato: TODO |
-| `encodedData` | object | :tomato: TODO |
-| `events` | object | :tomato: TODO |
-| `account` | object | :tomato: TODO |
-| `block` | object | :tomato: TODO |
-| `blockHeader` | object | :tomato: TODO |
-| `latestBlock` | object | :tomato: TODO |
-| `collection` | object | :tomato: TODO |
+| `blockId` | string | ID of the block that contains the event. |
+| `blockHeight` | number| Height of the block that contains the event. |
+| `blockTimestamp` | string | The timestamp of when the block was sealed in a `DateString` format. eg. `'2021-06-25T13:42:04.227Z'` |
+| `type` | [EventName](#EventName) | A string containing the event name. |
+| `transactionId` | object | :tomato: TODO |
+| `transactionIndex` | object | :tomato: TODO |
+| `eventIndex` | object | :tomato: TODO |
+| `data` | any | The data emitted from the event. |
 
 ## `Transaction Statuses`
 
