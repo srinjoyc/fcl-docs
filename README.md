@@ -233,7 +233,7 @@ fcl.authenticate();
 
 > :warning: **This method can only be used in web browsers.**
 
-Logs out the current user and sets the values on the [current user](##`CurrentUserObject`) object to null.
+Logs out the current user and sets the values on the [current user](#`CurrentUserObject`) object to null.
 
 ### Note
 
@@ -310,7 +310,7 @@ A **convenience method** that produces the needed authorization details for the 
 
 | Type                                           | Description                                                                                              |
 | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| [AuthorizationObject](##AuthorizationObject) | An object containing the necessary details from the current user to authorize a transaction in any role. |
+| [AuthorizationObject](#AuthorizationObject) | An object containing the necessary details from the current user to authorize a transaction in any role. |
 
 ### Usage
 
@@ -344,7 +344,7 @@ const txId = await fcl.mutate({
 
 ## Current User
 
-Holds the [current user](##`CurrentUserObject`), if set, and offers a set of functions to manage the authentication and authorization of the user.
+Holds the [current user](#`CurrentUserObject`), if set, and offers a set of functions to manage the authentication and authorization of the user.
 
 > :warning: **The following methods can only be used in web browsers.**
 
@@ -360,7 +360,7 @@ The callback passed to subscribe will be called when the user authenticates and 
 
 | Name       | Type     | Description                                                                                                                               |
 | ---------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `callback` | function | The callback will be called with the [current user](##`CurrentUserObject`) as the first argument when the current user is set or removed. |
+| `callback` | function | The callback will be called with the [current user](#`CurrentUserObject`) as the first argument when the current user is set or removed. |
 
 ### Usage
 
@@ -395,7 +395,7 @@ export function AuthCluster() {
 
 ## `fcl.currentUser().snapshot()`
 
-Returns the [current user](##`CurrentUserObject`) object. This is the same object that is set and available on [`fcl.currentUser().subscribe(callback)`](<##`fcl.currentUser().subscribe(callback)`>).
+Returns the [current user](#`CurrentUserObject`) object. This is the same object that is set and available on [`fcl.currentUser().subscribe(callback)`](<##`fcl.currentUser().subscribe(callback)`>).
 
 ### Usage
 
@@ -411,19 +411,19 @@ fcl.currentUser().subscribe(console.log)
 
 ## `fcl.currentUser().authenticate()`
 
-Equivalent to `fcl.authenticate()` **(recommended)**.
+Equivalent to `fcl.authenticate()`.
 
 ---
 
 ## `fcl.currentUser().unauthenticate()`
 
-Equivalent to `fcl.unauthenticate()` **(recommended)**.
+Equivalent to `fcl.unauthenticate()`.
 
 ---
 
 ## `fcl.currentUser().authorization()`
 
-Equivalent to `fcl.authz` **(recommended)**.
+Equivalent to `fcl.authz`.
 
 ---
 
@@ -494,13 +494,13 @@ Allows you to submit transactions to the blockchain to potentially mutate the st
 
 #### Example
 
-- [Authoization function docs](#signing-function)
+- [Authorization function docs](#signing-function)
 
 - [Example authorization function (Node)](https://github.com/onflow/kitty-items/blob/master/api/src/services/flow.ts) - it is reccomended to use `fcl.mutate` instead of `fcl.send(...).then(fcl.decode)`
 
 ### Options
 
-_Pass in the following as a single object with the following keys.All keys are optional unless otherwise stated._
+_Pass in the following as a single object with the following keys. All keys are optional unless otherwise stated._
 
 | Key        | Type                                               | Description                                                                                                                                   |
 | ---------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1098,7 +1098,7 @@ await fcl
 
 ## Template Builders
 
-> :warning: **_Deprecating soon_**. The following functionality is replaced by [`fcl.query({...options}`](##`fcl.query({...options})`) or [`fcl.mutate({...options})`](##`fcl.mutate({...options})`)
+> :warning: **_Reccomended:_** The following functionality is simplified by [`fcl.query({...options}`](##`fcl.query({...options})`) or [`fcl.mutate({...options})`](##`fcl.mutate({...options})`) and is reccomended to use over the functions below.
 
 ## `fcl.script(CODE)`
 
