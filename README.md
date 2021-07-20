@@ -501,7 +501,7 @@ _Pass in the following as a single object with the following keys. All keys are 
 | `cadence`  | string **(required)**                              | A valid cadence transaction.                                                                                                                  |
 | `args`     | [ArgumentFunction](##`ArgumentFunction`)           | Any arguments to the script if needed should be supplied via a function that returns an array of arguments.                                   |
 | `limit`    | number                                             | Compute limit for query. :tomato: WHAT UNITS ARE THESE IN?                                                                                    |
-| `proposer` | [AuthorizationFunction](##`AuthorizationFunction`) | The authorization function that returns a valid [AuthorizationObject](##`AuthorizationObject`) for the [proposer role](##`TransactionRoles`). |
+| `proposer` | [AuthorizationFunction](#AuthorizationFunction) | The authorization function that returns a valid [AuthorizationObject](#AuthorizationObject) for the [proposer role](#TransactionRoles). |
 
 ### Returns
 
@@ -556,13 +556,13 @@ This method consumes an array of [builders](https://google.ca) that are to be re
 
 | Name       | Type                      | Description            |
 | ---------- | ------------------------- | ---------------------- |
-| `builders` | [[Builders]](#`Builders`) | See builder functions. |
+| `builders` | [[Builders](#builders)] | See builder functions. |
 
 ### Returns
 
 | Type                                 | Description                                                                                                                                       |
 | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [ResponseObject](##`ResponseObject`) | An object containing the data returned from the chain. Should always be decoded with `fcl.decode()` to get back appropriate JSON keys and values. |
+| [ResponseObject](#ResponseObject) | An object containing the data returned from the chain. Should always be decoded with `fcl.decode()` to get back appropriate JSON keys and values. |
 
 ### Usage
 
@@ -925,10 +925,10 @@ A builder function that returns the status of transaction.
 
 | Name           | Type                                         | Description                                                     |
 | -------------- | -------------------------------------------- | --------------------------------------------------------------- |
-| `events`       | [[EventObject]](##`EventObject`)             | An array of events that were emitted during the transaction.    |
-| `status`       | [TransactionStatus](##`TransactionStatuses`) | The status of the transaction on the blockchain.                |
+| `events`       | [[EventObject]](#EventObject)             | An array of events that were emitted during the transaction.    |
+| `status`       | [TransactionStatus](#TransactionStatuses) | The status of the transaction on the blockchain.                |
 | `errorMessage` | string                                       | An error message if it exists. Default is an empty string `''`. |
-| `statusCode`   | [GRPCStatus](##`GRPCStatuses`)               | The status from the GRPC response.                              |
+| `statusCode`   | [GRPCStatus](#grpc-statuses)               | The status from the GRPC response.                              |
 
 ### Usage
 
@@ -964,7 +964,7 @@ A builder function that returns a [transaction object](##TransactionObject>) onc
 
 | Name           | Type                                       | Description                                                     |
 | -------------- | ------------------------------------------ | --------------------------------------------------------------- |
-| `events`       | [[EventObject]](##`EventObject`)           | An array of events that matched the eventName.                  |
+| `events`       | [[EventObject]](#EventObject)           | An array of events that matched the eventName.                  |
 | `status`       | [TransactionStatus](##`TransactionStatus`) | The status of the transaction on the blockchain.                |
 | `errorMessage` | string                                     | An error message if it exists. Default is an empty string `''`. |
 | `statusCode`   | [GRPCStatus](##`TransactionStatus`)        | The status from the GRPC response.                              |
@@ -1094,7 +1094,7 @@ await fcl
 
 ## Template Builders
 
-> :warning: **_Reccomended:_** The following functionality is simplified by [`fcl.query({...options}`](##`fcl.query({...options})`) or [`fcl.mutate({...options})`](##`fcl.mutate({...options})`) and is reccomended to use over the functions below.
+> :warning: **_Reccomended:_** The following functionality is simplified by [`fcl.query({...options}`](#fcl.query({...options})) or [`fcl.mutate({...options})`](#fcl.mutate({...options})) and is reccomended to use over the functions below.
 
 ## `fcl.script(CODE)`
 
@@ -1209,7 +1209,7 @@ A pre-built interaction that returns the latest block (optionally sealed or not)
 
 | Type                           | Description                       |
 | ------------------------------ | --------------------------------- |
-| [BlockObject](##`BlockObject`) | A JSON representation of a block. |
+| [BlockObject](#BlockObject) | A JSON representation of a block. |
 
 ### Usage
 
@@ -1239,9 +1239,9 @@ A utility function that lets you set the transaction to get subsequent status up
 | ----------------- | -------- | ----------------------------------------------------------------------------------------------------------- |
 | `snapshot()`      | function | Returns the current state of the transaction.                                                               |
 | `subscribe(cb)`   | function | Calls the `cb` passed in with the new transaction on a status change.                                       |
-| `onceFinalized()` | function | Provides the transaction once status `2` is returned. See [Tranasaction Statuses](##`TransactionStatuses`). |
-| `onceExecuted()`  | function | Provides the transaction once status `3` is returned. See [Tranasaction Statuses](##`TransactionStatuses`). |
-| `onceSealed()`    | function | Provides the transaction once status `4` is returned. See [Tranasaction Statuses](##`TransactionStatuses`). |
+| `onceFinalized()` | function | Provides the transaction once status `2` is returned. See [Tranasaction Statuses](#TransactionStatuses). |
+| `onceExecuted()`  | function | Provides the transaction once status `3` is returned. See [Tranasaction Statuses](#TransactionStatuses). |
+| `onceSealed()`    | function | Provides the transaction once status `4` is returned. See [Tranasaction Statuses](#TransactionStatuses). |
 
 ### Usage
 
@@ -1418,7 +1418,7 @@ An authorization function must produce the information of the user that is going
 **Returns**
 | Value Type | Description |
 |----------- | ----------- |
-| Promise<[AuthorizationObject](##`AuthorizationObject`)> | The object that contains all the information needed by FCL to authorize a user's transaction. |
+| Promise<[AuthorizationObject](#AuthorizationObject)> | The object that contains all the information needed by FCL to authorize a user's transaction. |
 
 ### Usage
 
@@ -1566,13 +1566,13 @@ The JSON representation of a key on the Flow blockchain.
 | `parentId` | string | The id of the parent block. |
 | `height` | number | The height of the block. |
 | `timestamp` | object | Contains time related fields. |
-| `collectionGuarantees` | [[CollectionGuaranteeObject]](##`BlockObject`) | Contains the ids of collections included in the block. |
+| `collectionGuarantees` | [[CollectionGuaranteeObject]](#BlockObject) | Contains the ids of collections included in the block. |
 | `blockSeals` | [[SealedBlockObject]](##`SealedBlockObject`) | The details of which nodes executed and sealed the blocks. |
 | `signatures` | Uint8Array([numbers]) | All signatures. |
 
 ## `BlockHeaderObject`
 
-The subset of the [BlockObject](##`BlockObject`) containing only the header values of a block.
+The subset of the [BlockObject](#BlockObject) containing only the header values of a block.
 
 | Key | Value Type | Description |
 | ---- | ---------- | ----------- |
