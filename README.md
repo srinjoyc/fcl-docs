@@ -71,7 +71,7 @@
   * [`Address`](#-address-)
   * [`ArgumentObject`](#-argumentobject-)
   * [`ArgumentFunction`](#-argumentfunction-)
-  * [`Authorization Function`](#-authorization-function-)
+  * [`Authorization Function`](#authorization-function)
   * [`Signing Function`](#-signing-function-)
   * [`TransactionRolesObject`](#-transactionrolesobject-)
   * [`EventName`](#-eventname-)
@@ -261,7 +261,7 @@ fcl.unauthenticate();
 
 > :warning: **This method can only be used in web browsers.**
 
-A **convenience method** that calls `fcl.unauthenticate()` and then `fcl.authenticate()` for the current user.
+A **convenience method** that calls [`fcl.unauthenticate()`](#fcl.unauthenticate()) and then [`fcl.authenticate()`](#fcl.authenticate()) for the current user.
 
 ### Note
 
@@ -288,7 +288,7 @@ fcl.reauthenticate();
 
 > :warning: **This method can only be used in web browsers.**
 
-A **convenience method** that calls and is equivalent to [`fcl.authenticate()`](#fcltransactioncode).
+A **convenience method** that calls and is equivalent to [`fcl.authenticate()`](#fcl.authenticate()).
 
 ---
 
@@ -296,7 +296,7 @@ A **convenience method** that calls and is equivalent to [`fcl.authenticate()`](
 
 > :warning: **This method can only be used in web browsers.**
 
-A **convenience method** that calls and is equivalent to [`fcl.authenticate()`](<##`fcl.authenticate()`>).
+A **convenience method** that calls and is equivalent to [`fcl.authenticate()`](#fcl.authenticate()).
 
 ---
 
@@ -304,7 +304,7 @@ A **convenience method** that calls and is equivalent to [`fcl.authenticate()`](
 
 A **convenience method** that produces the needed authorization details for the current user to submit transactions to Flow. It defines a signing function that connects to a user's wallet provider to produce signatures to submit transactions.
 
-> :loudspeaker: You can replace this function with your own [authorization function](##authorization-function) if needed.
+> :loudspeaker: You can replace this function with your own [authorization function](#authorization-function) if needed.
 
 ### Returns
 
