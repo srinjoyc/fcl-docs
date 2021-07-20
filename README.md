@@ -648,7 +648,7 @@ assert(typeof decoded === "number");
 ## Builders
 
 These methods fill out various portions of a transaction or script template in order to
-build, resolve, and send it to the blockchain. A valid populated template is referred to as an [Interaction](##`Interaction`).
+build, resolve, and send it to the blockchain. A valid populated template is referred to as an [Interaction](#Interaction).
 
 :warning: **These methods must be used with `fcl.send([...builders]).then(fcl.decode)`**
 
@@ -1068,7 +1068,7 @@ A utility builder to be used with other builders to pass in arguments with a val
 
 | Type                                   | Description                                                                                                         |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| [Partial Interaction](##`Interaction`) | An interaction that contains the arguments and types passed in. This alone is a partial and incomplete interaction. |
+| [Partial Interaction](#Interaction) | An interaction that contains the arguments and types passed in. This alone is a partial and incomplete interaction. |
 
 ### Usage
 
@@ -1112,7 +1112,7 @@ A template builder to use a Cadence script for an interaction.
 
 | Type                           | Description                                   |
 | ------------------------------ | --------------------------------------------- |
-| [Interaction](##`Interaction`) | An interaction containing the code passed in. |
+| [Interaction](#Interaction) | An interaction containing the code passed in. |
 
 ### Usage
 
@@ -1148,7 +1148,7 @@ A template builder to use a Cadence transaction for an interaction.
 
 | Type                                   | Description                                                                                                                    |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| [Partial Interaction](##`Interaction`) | An partial interaction containing the code passed in. Further builders are required to complete the interaction - see warning. |
+| [Partial Interaction](#Interaction) | An partial interaction containing the code passed in. Further builders are required to complete the interaction - see warning. |
 
 ### Usage
 
@@ -1203,7 +1203,7 @@ A pre-built interaction that returns the latest block (optionally sealed or not)
 
 | Name       | Type    | Default | Description                                                                       |
 | ---------- | ------- | ------- | --------------------------------------------------------------------------------- |
-| `isSealed` | boolean | false   | If the latest block should be sealed or not. See [block states](##`Interaction`). |
+| `isSealed` | boolean | false   | If the latest block should be sealed or not. See [block states](#Interaction). |
 
 ### Returns
 
@@ -1310,9 +1310,9 @@ Builders are modular functions that can be coupled together with `fcl.send([...b
 
 ---
 
-## `Interactions`
+## `Interaction`
 
-An interaction is a a template containing a valid string of Cadence code that is either a valid script or transaction. Please read the guide on [FCL Interactions](https://github.com/onflow/kitty-items/blob/master/web/src/hooks/use-current-user.hook.js).
+An interaction is an object containing the information to perform an action on chain.This object is populated through builders and converted into the approriate access node API call. See the interaction object [here](https://github.com/onflow/flow-js-sdk/blob/master/packages/sdk/src/interaction/interaction.js). A 'partial' interaction is an interaction object that does not have sufficient information to the intended on-chain action. Multiple partial interactions (through builders) can be coupled to create a complete interaction. 
 
 ---
 
@@ -1350,7 +1350,7 @@ An object that contains all the information needed for FCL to sign a message wit
 | ----------- | ---------------------- | ------------------------------------------------------------------------------------------------------ |
 | `addr`      | [Address](##`Address`) | The address of the authorizer                                                                          |
 | `keyId`     | number                 | The index of the key to use during authorization. (Multiple keys on an account is possible).           |
-| `signature` | function               | A [SigningFunction](##`SigningFunction`) that can produce a valid signature for a user from a message. |
+| `signature` | function               | A [SigningFunction](#Signing-Function) that can produce a valid signature for a user from a message. |
 
 ---
 
@@ -1359,11 +1359,11 @@ An object that contains all the information needed for FCL to sign a message wit
 The JSON representation of an account on the Flow blockchain.
 | Key | Value Type | Description |
 | ---- | ---------- | ----------- |
-| `address` | [Address](##`Address`) | The address of the account |
+| `address` | [Address](#Address) | The address of the account |
 | `balance` | number | The FLOW balance of the account in 10\*6. |
-| `code` | [Code](##`Code`) | ???? |
-| `contracts` | Object: [Contract](##`contract`) | An object with keys as the contract name deployed and the value as the the cadence string. |
-| `keys` | [[KeyObject]](##`Key`) | Any contracts deployed to this account. |
+| `code` | [Code](#Code) | ???? |
+| `contracts` | Object: [Contract](#contract) | An object with keys as the contract name deployed and the value as the the cadence string. |
+| `keys` | [[KeyObject]](#Key) | Any contracts deployed to this account. |
 
 ---
 
@@ -1413,7 +1413,7 @@ An authorization function must produce the information of the user that is going
 
 | Parameter Name | Value Type                         | Description                                    |
 | -------------- | ---------------------------------- | ---------------------------------------------- |
-| `account`      | [AccountObject](##`AccountObject`) | The account of the user that is going to sign. |
+| `account`      | [AccountObject](#AccountObject) | The account of the user that is going to sign. |
 
 **Returns**
 | Value Type | Description |
@@ -1566,8 +1566,8 @@ The JSON representation of a key on the Flow blockchain.
 | `parentId` | string | The id of the parent block. |
 | `height` | number | The height of the block. |
 | `timestamp` | object | Contains time related fields. |
-| `collectionGuarantees` | [[CollectionGuaranteeObject]](#BlockObject) | Contains the ids of collections included in the block. |
-| `blockSeals` | [[SealedBlockObject]](##`SealedBlockObject`) | The details of which nodes executed and sealed the blocks. |
+| `collectionGuarantees` | [[CollectionGuaranteeObject](#CollectionGuaranteeObject)] | Contains the ids of collections included in the block. |
+| `blockSeals` | [SealedBlockObject] | The details of which nodes executed and sealed the blocks. |
 | `signatures` | Uint8Array([numbers]) | All signatures. |
 
 ## `BlockHeaderObject`
