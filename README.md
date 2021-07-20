@@ -1,45 +1,91 @@
-# Feedback Instructions
-
-**1st TODO:**
-- Read the full document as if you were a first time FCL user (who has read the quick start and maybe looked at the kitty-items example and read some introduction somewhere about FCL).
-
-**2nd TODO** - Please check for the following after reading it over:
--  Do all the explanations of the functions make sense and are they accurate?
--  Are the examples listed accurate/functional for their respective section? (note: could use help filling these out, many are known to be missing/broken.)
--  Do the :warning: and :loudspeaker: used properly and do they make sense?
--  Is it clear what the recommendation is (especially in terms of query/mutate vs send/decode)?
--  Does the order of items make sense? If not, how can they be better arranged?
--  Is the tone of the writing reasonable and is there any places it should be changed/reworded?
--  From your knowledge, is anything missing that should be in the reference for FCL? *(note: guides and tutorials with more hands-on help will be created elsewhere)*
-
-**3rd TODO** - Submit Feedback:
--  Do all the explanations of the functions make sense and are they accurate?
--  Are the examples listed accurate/functional for their respective section?
--  Do the :warning: and :loudspeaker: used properly and do they make sense?
--  Is it clear what the recommendation is (especially in terms of query/mutate vs send/decode)?
--  Does the order of items make sense? If not, how can they be better arranged?
--  From your knowledge, is anything missing?
-
-**4th TODO (optional)** - Take a look at the :tomato:'s and see if there is any additional context/info you can provide. Some tomato's are there as a reminder to fill in (ie. all the Flow types) which you can ignore, but others have questions or blanks for certain things, those are the ones that need some attention.
-
-**How to submit (in order of preference)**
-1. Direct PR with proposed changes and/or answers to the above questions.
-2. A document of any kind sent over by slack or email.
-3. Informal slack message with feedback
-4. Meeting to deliver verbal feedback
-
-**Note:** It's very important we get several people to look at this before putting this out, so an informal slack message with some feedback is always better than none!
-
-
-**Note**: Don't worry about broken links and minor spelling mistakes, those will be fixed at the end.
-
 # Flow Client Library (FCL) API Reference
 
 **Version**: 0.73.0
 
-**Last Updated**: July 7, 2021
+**Last Updated**: July 16, 2021
 
 **Github**: https://github.com/onflow/flow-js-sdk/
+
+- [Configuration](#configuration)
+  * [Setting Configuration Values](#setting-configuration-values)
+  * [Getting Configuration Values](#getting-configuration-values)
+  * [Common Configuration Keys](#common-configuration-keys)
+  * [Address replacement in scripts and transactions](#address-replacement-in-scripts-and-transactions)
+  * [Example](#example)
+- [Wallet Interactions](#wallet-interactions)
+  * [`fcl.authenticate()`](#-fclauthenticate---)
+  * [`fcl.unauthenticate()`](#-fclunauthenticate---)
+  * [`fcl.reauthenticate()`](#-fclreauthenticate---)
+  * [`fcl.signUp()`](#-fclsignup---)
+  * [`fcl.login()`](#-fcllogin---)
+  * [`fcl.authz`](#-fclauthz-)
+  * [Current User](#current-user)
+  * [`fcl.currentUser().subscribe(callback)`](#-fclcurrentuser--subscribe-callback--)
+  * [`fcl.currentUser().snapshot()`](#-fclcurrentuser--snapshot---)
+  * [`fcl.currentUser().authenticate()`](#-fclcurrentuser--authenticate---)
+  * [`fcl.currentUser().unauthenticate()`](#-fclcurrentuser--unauthenticate---)
+  * [`fcl.currentUser().authorization()`](#-fclcurrentuser--authorization---)
+- [On-chain Interactions](#on-chain-interactions)
+  * [Query and Mutate Flow with Cadence](#query-and-mutate-flow-with-cadence)
+  * [`fcl.query({...options})`](#-fclquery--options---)
+  * [`fcl.mutate({...options})`](#-fclmutate--options---)
+  * [Query and mutate the blockchain with Builders](#query-and-mutate-the-blockchain-with-builders)
+  * [`fcl.send([...builders])`](#-fclsend--builders---)
+  * [`fcl.decode(response)`](#-fcldecode-response--)
+  * [Builders](#builders)
+    + [Query Builders](#query-builders)
+  * [`fcl.getAccount(address)`](#-fclgetaccount-address--)
+  * [`fcl.getBlock(isSealed)`](#-fclgetblock-issealed--)
+  * [`fcl.atBlockHeight(blockHeight)`](#-fclatblockheight-blockheight--)
+  * [`fcl.atBlockId(blockId)`](#-fclatblockid-blockid--)
+  * [`fcl.getBlockHeader()`](#-fclgetblockheader---)
+  * [`fcl.getEventsAtBlockHeightRange(eventName,fromBlockHeight,toBlockHeight)`](#-fclgeteventsatblockheightrange-eventname-fromblockheight-toblockheight--)
+  * [`fcl.getEventsAtBlockIds(eventName,[...blockIds])`](#-fclgeteventsatblockids-eventname--blockids---)
+  * [`fcl.getCollection(collectionID)`](#-fclgetcollection-collectionid--)
+  * [`fcl.getTransactionStatus(transactionId)`](#-fclgettransactionstatus-transactionid--)
+  * [`fcl.getTransaction(transactionId)`](#-fclgettransaction-transactionid--)
+  * [`fcl.getEvents(eventName,fromBlock,toBlock)` - Deprecated](#-fclgetevents-eventname-fromblock-toblock-----deprecated)
+  * [`fcl.getLatestBlock(isSealed)` - Deprecated](#-fclgetlatestblock-issealed-----deprecated)
+  * [`fcl.getBlockById(blockId)` - Deprecated](#-fclgetblockbyid-blockid-----deprecated)
+  * [`fcl.getBlockByHeight(blockHeight)` - Deprecated](#-fclgetblockbyheight-blockheight-----deprecated)
+  * [Utility Builders](#utility-builders)
+  * [`fcl.arg(value, type)`](#-fclarg-value--type--)
+  * [`fcl.args([...args])`](#-fclargs--args---)
+  * [Template Builders](#template-builders)
+  * [`fcl.script(CODE)`](#-fclscript-code--)
+  * [`fcl.transaction(CODE)`](#-fcltransaction-code--)
+  * [Pre-built Interactions](#pre-built-interactions)
+  * [`fcl.account(address)`](#-fclaccount-address--)
+  * [`fcl.latestBlock(isSealed)`](#-fcllatestblock-issealed--)
+  * [Transaction Status Utility](#transaction-status-utility)
+  * [`fcl.tx(transactionId)`](#-fcltx-transactionid--)
+  * [Event Polling Utility](#event-polling-utility)
+  * [`fcl.events(eventName)`](#-fclevents-eventname--)
+- [Types, Interfaces, and Definitions](#types--interfaces--and-definitions)
+  * [`Builders`](#-builders-)
+  * [`Interactions`](#-interactions-)
+  * [`CurrentUserObject`](#-currentuserobject-)
+  * [`AuthorizationObject`](#-authorizationobject-)
+  * [`SignableObject`](#-signableobject-)
+  * [`AccountObject`](#-accountobject-)
+  * [`Address`](#-address-)
+  * [`ArgumentObject`](#-argumentobject-)
+  * [`ArgumentFunction`](#-argumentfunction-)
+  * [`Authorization Function`](#-authorization-function-)
+  * [`Signing Function`](#-signing-function-)
+  * [`TransactionRolesObject`](#-transactionrolesobject-)
+  * [`EventName`](#-eventname-)
+  * [`Contract`](#-contract-)
+  * [`KeyObject`](#-keyobject-)
+  * [`BlockObject`](#-blockobject-)
+  * [`BlockHeaderObject`](#-blockheaderobject-)
+  * [`CollectionGuaranteeObject`](#-collectionguaranteeobject-)
+  * [`CollectionObject`](#-collectionobject-)
+  * [`ResponseObject`](#-responseobject-)
+  * [`Event Object`](#-event-object-)
+  * [`Transaction Statuses`](#-transaction-statuses-)
+  * [`GRPC Statuses`](#-grpc-statuses-)
+  * [`FType`](#-ftype-)
 
 # Configuration
 
@@ -51,13 +97,21 @@ FCL has a mechanism that lets you configure various aspects of FCL. When you mov
 
 Values only need to be set once. We recommend doing this once and as early in the life cycle as possible. To set a configuration value, the `put` method on the `config` instance needs to be called, the `put` method returns the `config` instance so they can be chained.
 
+Alternatively, you can set the config by passing a JSON object directly.
+
 ```javascript
 import * as fcl from "@onflow/fcl";
 
-fcl
-  .config() // returns the config instance
+fcl.config() // returns the config instance
   .put("foo", "bar") // configures "foo" to be "bar"
   .put("baz", "buz"); // configures "baz" to be "buz"
+
+// OR
+
+fcl.config({
+  "foo": "bar",
+  "baz": "buz",
+})
 ```
 
 ## Getting Configuration Values
@@ -86,7 +140,7 @@ addStuff().then((d) => console.log(d)); // 13 (5 + 7 + 1)
 
 | Name                            | Example                                              | Description                                                                                               |
 | ------------------------------- | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `accessNode.api` **(required)** | `https://access-testnet.onflow.org`                  | API URL for the Flow Blockchain Access Node you want to be communicating with. See list here.             |
+| `accessNode.api` **(required)** | `https://access-testnet.onflow.org`                  | API URL for the Flow Blockchain Access Node you want to be communicating with. See all available access node endpoints [here](https://docs.onflow.org/access-api/#flow-access-node-endpoints).             |
 | `env`                           | `testnet`                                            | Used in conjunction with stored interactions. Possible values: `local`, `canarynet`, `testnet`, `mainnet` |
 | `discovery.wallet`              | `https://fcl-discovery.onflow.org/testnet/authn`     | Points FCL at the Wallet or Wallet Discovery mechanism.                                                   |
 | `app.detail.title`              | `Cryptokitties`                                      | Your applications title, can be requested by wallets and other services.                                  |
@@ -138,8 +192,8 @@ fcl
 
 # Wallet Interactions
 
-These methods allows dapps to interact with [supported wallet services](#TODO) in order to authenticate a user and authorize transactions on their behalf.
-Note: These methods are **async**.
+These methods allows dapps to interact with FCL compatible wallets in order to authenticate the user and authorize transactions on their behalf.
+> :warning:  These methods are **async**.
 
 ## Methods
 
@@ -149,7 +203,7 @@ Note: These methods are **async**.
 
 > :warning: **This method can only be used in web browsers.**
 
-Calling this method will authenticate the current user via any wallet that supports FCL. Once called, FCL will initiate communication with the configured `discovery.wallet` endpoint which lets the user select a wallet. Once the wallet provider has authenticated the user, FCL will set the values on the [current user](##`CurrentUserObject`) object.
+Calling this method will authenticate the current user via any wallet that supports FCL. Once called, FCL will initiate communication with the configured `discovery.wallet` endpoint which lets the user select a wallet to authenticate with. Once the wallet provider has authenticated the user, FCL will set the values on the [current user](#CurrentUserObject) object for future use and authorization.
 
 ### Note
 
@@ -171,13 +225,13 @@ fcl.authenticate();
 
 ### Examples
 
-- [React Hook to manage FCL authentication](https://github.com/onflow/kitty-items/blob/master/web/src/hooks/use-current-user.hook.js)
+- [Press Login: Live Kitty Items](http://kitty-items-flow-testnet.herokuapp.com/)
 
 ---
 
 ## `fcl.unauthenticate()`
 
-> :warning: **This method can only be used client side.**
+> :warning: **This method can only be used in web browsers.**
 
 Logs out the current user and sets the values on the [current user](##`CurrentUserObject`) object to null.
 
@@ -199,13 +253,13 @@ fcl.unauthenticate();
 
 ### Examples
 
-- [React Hook to manage FCL authentication](https://github.com/onflow/kitty-items/blob/master/web/src/hooks/use-current-user.hook.js)
+- [React Hook to manage FCL authentication: Kitty-items](https://github.com/onflow/kitty-items/blob/master/web/src/hooks/use-current-user.hook.js)
 
 ---
 
 ## `fcl.reauthenticate()`
 
-> :warning: **This method can only be used client side.**
+> :warning: **This method can only be used in web browsers.**
 
 A **convenience method** that calls `fcl.unauthenticate()` and then `fcl.authenticate()` for the current user.
 
@@ -226,39 +280,41 @@ fcl.reauthenticate();
 
 ### Examples
 
-- [React Hook to manage FCL authentication](https://github.com/onflow/kitty-items/blob/master/web/src/hooks/use-current-user.hook.js)
+- [React Hook to manage FCL authentication: Kitty-items](https://github.com/onflow/kitty-items/blob/master/web/src/hooks/use-current-user.hook.js)
 
 ---
 
 ## `fcl.signUp()`
 
-> :warning: **This method can only be used client side.**
+> :warning: **This method can only be used in web browsers.**
 
-A **convenience method** that calls [`fcl.authenticate()`](#fcltransactioncode).
+A **convenience method** that calls and is equivalent to [`fcl.authenticate()`](#fcltransactioncode).
 
 ---
 
 ## `fcl.login()`
 
-> :warning: **This method can only be used client side.**
+> :warning: **This method can only be used in web browsers.**
 
-A **convenience method** that calls [`fcl.authenticate()`](<##`fcl.authenticate()`>).
+A **convenience method** that calls and is equivalent to [`fcl.authenticate()`](<##`fcl.authenticate()`>).
 
 ---
 
 ## `fcl.authz`
 
-A **convenience method** that produces the needed authorization details for the current user to submit transactions to Flow. It defines a signing function that connects to a wallet provider to produce signatures to submit transactions.
+A **convenience method** that produces the needed authorization details for the current user to submit transactions to Flow. It defines a signing function that connects to a user's wallet provider to produce signatures to submit transactions.
+
+> :loudspeaker: You can replace this function with your own [authorization function](##authorization-function) if needed.
 
 ### Returns
 
 | Type                                           | Description                                                                                              |
 | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| [AuthorizationObject](##`AuthorizationObject`) | An object containing the necessary details from the current user to authorize a transaction in any role. |
+| [AuthorizationObject](##AuthorizationObject) | An object containing the necessary details from the current user to authorize a transaction in any role. |
 
 ### Usage
 
-**Note:** The `fcl.mutate` example below is showing how `fcl.authz` is used under the hood. The default values for `proposer`, `payer`, and `authorizations` are already `fcl.authz` so there is no need to include these parameters.
+**Note:** The default values for `proposer`, `payer`, and `authorizations` are already `fcl.authz` so there is no need to include these parameters, it is shown only for example purposes. See more on [signing roles](https://docs.onflow.org/concepts/accounts-and-keys/#signing-a-transaction).
 
 ```javascript
 import * as fcl from "@onflow/fcl";
@@ -288,9 +344,9 @@ const txId = await fcl.mutate({
 
 ## Current User
 
-Holds the [current user](##`CurrentUserObject`) if set and offers a set of functions to manage the authentication and authorization of the user.
+Holds the [current user](##`CurrentUserObject`), if set, and offers a set of functions to manage the authentication and authorization of the user.
 
-> :warning: **The following methods can only be used client side.**
+> :warning: **The following methods can only be used in web browsers.**
 
 ## Methods
 
@@ -341,6 +397,16 @@ export function AuthCluster() {
 
 Returns the [current user](##`CurrentUserObject`) object. This is the same object that is set and available on [`fcl.currentUser().subscribe(callback)`](<##`fcl.currentUser().subscribe(callback)`>).
 
+### Usage
+
+```javascript
+// returns the current user object
+const user = fcl.currentUser().snapshot()
+
+// subscribes to the current user object and logs to console on changes
+fcl.currentUser().subscribe(console.log)
+```
+
 ---
 
 ## `fcl.currentUser().authenticate()`
@@ -361,12 +427,6 @@ Equivalent to `fcl.authz` **(recommended)**.
 
 ---
 
-## `fcl.currentUser().signUserMessage(msg, opts)`
-
-:tomato: Coming soon.
-
----
-
 # On-chain Interactions
 
 > :loudspeaker: **These methods can be used in browsers and NodeJS.**
@@ -374,10 +434,9 @@ Equivalent to `fcl.authz` **(recommended)**.
 These methods allows dapps to interact directly with the Flow blockchain via a set of functions that currently use the [Access Node API](https://docs.onflow.org/access-api/).
 
 ## Methods
-
 ---
 
-## Query and mutate the blockchain with Cadence
+## Query and Mutate Flow with Cadence
 
 If you want to run arbitrary Cadence scripts on the blockchain, these methods offer a convenient way to do so **without having to build, send, and decode interactions**.
 
@@ -483,7 +542,7 @@ const txId = await fcl.mutate({
 
 ## Query and mutate the blockchain with Builders
 
-In some cases, you may want to build more complex interactions than what the `fcl.query` and `fcl.mutate` interface offer. To do this, FCL uses a pattern of building up an interaction with a combination of builders, resolving them, and sending them to the chain.
+In some cases, you may want to utilize pre-built interactions or build more complex interactions than what the `fcl.query` and `fcl.mutate` interface offer. To do this, FCL uses a pattern of building up an interaction with a combination of builders, resolving them, and sending them to the chain.
 
 > :warning: **Recommendation:** Unless you have a specific use case that require usage of these builders, you should be able to achieve most cases with `fcl.query({...options}` or `fcl.mutate({...options})`
 
@@ -814,6 +873,38 @@ const events = await fcl
       "c4f239d49e96d1e5fbcf1f31027a6e582e8c03fcd9954177b7723fdb03d938c7",
       "5dbaa85922eb194a3dc463c946cc01c866f2ff2b88f3e59e21c0d8d00113273f",
     ]),
+  ])
+  .then(fcl.decode);
+```
+
+---
+## `fcl.getCollection(collectionID)`
+
+A builder function that returns all a collection containing a list of transaction ids by its collection id.
+
+:warning: The block range provided must be from the current spork. All events emitted during past sporks is current unavailable.
+
+### Arguments
+
+| Name        | Type                       | Description                               |
+| ----------- | -------------------------- | ----------------------------------------- |
+| `collectionID` | string | The id of the collection.                    |
+
+
+### Returns after decoding
+
+| Type                             | Description                                    |
+| -------------------------------- | ---------------------------------------------- |
+| [CollectionObject](##`CollectionObject`) | An object with the id and a list of transactions within the requested collection. |
+
+### Usage
+
+```javascript
+import * as fcl from "@onflow/fcl";
+
+const collection = await fcl
+  .send([
+    fcl.getCollection("cccdb0c67d015dc7f6444e8f62a3244ed650215ed66b90603006c70c5ef1f6e5")
   ])
   .then(fcl.decode);
 ```
@@ -1478,19 +1569,37 @@ The JSON representation of a key on the Flow blockchain.
 | `parentId` | string | The id of the parent block. |
 | `height` | number | The height of the block. |
 | `timestamp` | object | Contains time related fields. |
-| `collectionGuarantees` | [] | :tomato: TODO |
+| `collectionGuarantees` | [[CollectionGuaranteeObject]](##`BlockObject`) | Contains the ids of collections included in the block. |
 | `blockSeals` | [[SealedBlockObject]](##`SealedBlockObject`) | The details of which nodes executed and sealed the blocks. |
 | `signatures` | Uint8Array([numbers]) | All signatures. |
 
 ## `BlockHeaderObject`
 
 The subset of the [BlockObject](##`BlockObject`) containing only the header values of a block.
+
 | Key | Value Type | Description |
 | ---- | ---------- | ----------- |
 | `id` | string | The id of the block. |
 | `parentId` | string | The id of the parent block. |
 | `height` | number | The height of the block. |
 | `timestamp` | object | Contains time related fields. |
+
+## `CollectionGuaranteeObject`
+
+A collection that has been included in a block.
+
+| Key | Value Type | Description |
+| ---- | ---------- | ----------- |
+| `collectionId` | string | The id of the block. |
+| `signatures` | [SignatureObject] | All signatures. |
+
+## `CollectionObject`
+
+A collection is a list of transactions that are contained in the same block.
+| Key | Value Type | Description |
+| ---- | ---------- | ----------- |
+| `id` | string | The id of the collection. |
+| `transactionIds` | [string] | The ids of the transactions included in the collection. |
 
 ## `ResponseObject`
 
