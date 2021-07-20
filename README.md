@@ -2,9 +2,7 @@
 
 **Version**: 0.73.0
 
-**Last Updated**: July 16, 2021
-
-**Github**: https://github.com/onflow/flow-js-sdk/
+**Last Updated**: July 20, 2021
 
 # Table of contents
 
