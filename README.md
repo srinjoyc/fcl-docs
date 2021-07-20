@@ -31,7 +31,7 @@
   * [`fcl.mutate({...options})`](#-fclmutate--options---)
   * [Query and mutate the blockchain with Builders](#query-and-mutate-the-blockchain-with-builders)
   * [`fcl.send([...builders])`](#-fclsend--builders---)
-  * [`fcl.decode(response)`](#-fcldecode-response--)
+  * [`fcl.decode(response)`](#fcl.decode(response))
   * [Builders](#builders)
   * [Query Builders](#query-builders)
   * [`fcl.getAccount(address)`](#-fclgetaccount-address--)
@@ -450,7 +450,7 @@ _Pass in the following as a single object with the following keys.All keys are o
 | Key       | Type                                     | Description                                                                                                 |
 | --------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | `cadence` | string **(required)**                    | A valid cadence script.                                                                                     |
-| `args`    | [ArgumentFunction](##`ArgumentFunction`) | Any arguments to the script if needed should be supplied via a function that returns an array of arguments. |
+| `args`    | [ArgumentFunction](#`ArgumentFunction`) | Any arguments to the script if needed should be supplied via a function that returns an array of arguments. |
 | `limit`   | number                                   | Compute limit for query. :tomato: WHAT UNITS ARE THESE IN?                                                  |
 
 ### Returns
@@ -489,14 +489,8 @@ console.log(result); // 13
 ## `fcl.mutate({...options})`
 Allows you to submit transactions to the blockchain to potentially mutate the state.
 
-:warning: When being used in the browser, `fcl.mutate` uses the built-in `fcl.authz` function to produce the authorization (signatures) for the current user. When calling this method from Node, you will need to supply your own custom authorization function.
+:warning: When being used in the browser, `fcl.mutate` uses the built-in `fcl.authz` function to produce the authorization (signatures) for the current user. When calling this method from Node.js, you will need to supply your own custom authorization function.
 
-
-#### Example
-
-- [Authorization function docs](#signing-function)
-
-- [Example authorization function (Node)](https://github.com/onflow/kitty-items/blob/master/api/src/services/flow.ts) - it is reccomended to use `fcl.mutate` instead of `fcl.send(...).then(fcl.decode)`
 
 ### Options
 
@@ -537,7 +531,9 @@ const txId = await fcl.mutate({
 ```
 ### Examples
 
-- [Additional Explanation](https://gist.github.com/orodio/3bf977a0bd45b990d16fdc1459b129a2)
+- [Additional explanation](https://gist.github.com/orodio/3bf977a0bd45b990d16fdc1459b129a2)
+- [Custom authorization function](#authorization-function)
+
 ---
 
 ## Query and mutate the blockchain with Builders
@@ -550,11 +546,11 @@ In some cases, you may want to utilize pre-built interactions or build more comp
 
 Sends arbitrary scripts, transactions, and requests to Flow.
 
-This method consumes an array of [builders](https://google.ca) that are to be resolved and sent. The builders required to be included in the array depend on the [interaction](##`Interactions`) that is being built.
+This method consumes an array of [builders](https://google.ca) that are to be resolved and sent. The builders required to be included in the array depend on the [interaction](#`Interactions`) that is being built.
 
 ### Note
 
-:warning: Must be used in conjuction with [`fcl.decode(response)`](<##`fcl.decode(response)`>) to get back correct keys and all values in JSON.
+:warning: Must be used in conjuction with [`fcl.decode(response)`](<#fcl.decode(response)>) to get back correct keys and all values in JSON.
 
 ### Arguments
 
@@ -605,13 +601,13 @@ Decodes the response from `fcl.send()` into the appropriate JSON representation 
 
 ### Note
 
-:loudspeaker: To define your own decoder, see [`tutorial`](#TODO).
+:loudspeaker: To define your own decoder, see [`tutorial`](#https://github.com/onflow/flow-js-sdk/tree/master/packages/sdk/src/decode).
 
 ### Arguments
 
 | Name       | Type                                 | Description                                            |
 | ---------- | ------------------------------------ | ------------------------------------------------------ |
-| `response` | [ResponseObject](##`ResponseObject`) | Should be the response returned from `fcl.send([...])` |
+| `response` | [ResponseObject](#`ResponseObject`) | Should be the response returned from `fcl.send([...])` |
 
 ### Returns
 
@@ -662,19 +658,19 @@ build, resolve, and send it to the blockchain. A valid populated template is ref
 
 A builder function that returns the interaction to get an account by address.
 
-:warning: Consider using the pre-built interaction [`fcl.account(address)`](<##`fcl.account(address)`>) if you do not need to pair with any other builders.
+:warning: Consider using the pre-built interaction [`fcl.account(address)`](<#fcl.account(address)>) if you do not need to pair with any other builders.
 
 ### Arguments
 
 | Name      | Type                   | Description                                                                        |
 | --------- | ---------------------- | ---------------------------------------------------------------------------------- |
-| `address` | [Address](##`Address`) | Address of the user account with or without a prefix (both formats are supported). |
+| `address` | [Address](#Address) | Address of the user account with or without a prefix (both formats are supported). |
 
 ### Returns after decoding
 
 | Type                         | Description                              |
 | ---------------------------- | ---------------------------------------- |
-| [AccountObject](##`Account`) | A JSON representation of a user account. |
+| [AccountObject](#Account) | A JSON representation of a user account. |
 
 ### Usage
 
@@ -697,19 +693,19 @@ A builder function that returns the interaction to get the latest block.
 
 :loudspeaker: Use with `fcl.atBlockId()` and `fcl.atBlockHeight()` when building the interaction to get information for older blocks.
 
-:warning: Consider using the pre-built interaction [`fcl.latestBlock(isSealed)`](<##`fcl.latestBlock(isSealed)`>) if you do not need to pair with any other builders.
+:warning: Consider using the pre-built interaction [`fcl.latestBlock(isSealed)`](<#fcl.latestBlock(isSealed)>) if you do not need to pair with any other builders.
 
 ### Arguments
 
 | Name       | Type    | Default | Description                                                                       |
 | ---------- | ------- | ------- | --------------------------------------------------------------------------------- |
-| `isSealed` | boolean | false   | If the latest block should be sealed or not. See [block states](##`Interaction`). |
+| `isSealed` | boolean | false   | If the latest block should be sealed or not. See [block states](#`Interaction`). |
 
 ### Returns after decoding
 
 | Type                           | Description                                           |
 | ------------------------------ | ----------------------------------------------------- |
-| [BlockObject](##`BlockObject`) | The latest block if not used with any other builders. |
+| [BlockObject](#`BlockObject`) | The latest block if not used with any other builders. |
 
 ### Usage
 
@@ -729,7 +725,7 @@ const latestSealedBlock = await fcl
 
 A builder function that returns a partial interaction to a block at a specific height.
 
-:warning: Use with other interactions like [`fcl.getBlock()`](<##`fcl.getBlock(isSealed)`>) to get a full interaction at the specified block height.
+:warning: Use with other interactions like [`fcl.getBlock()`](<#`fcl.getBlock(isSealed)`>) to get a full interaction at the specified block height.
 
 ### Arguments
 
@@ -741,7 +737,7 @@ A builder function that returns a partial interaction to a block at a specific h
 
 | Type                                   | Description                                                                                                 |
 | -------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| [Partial Interaction](##`Interaction`) | A partial interaction to be paired with another interaction such as `fcl.getBlock()` or `fcl.getAccount()`. |
+| [Partial Interaction](#`Interaction`) | A partial interaction to be paired with another interaction such as `fcl.getBlock()` or `fcl.getAccount()`. |
 
 ### Usage
 
@@ -757,7 +753,7 @@ await fcl.send([fcl.getBlock(), fcl.atBlockHeight(123)]).then(fcl.decode);
 
 A builder function that returns a partial interaction to a block at a specific block ID.
 
-:warning: Use with other interactions like [`fcl.getBlock()`](<##`fcl.getBlock(isSealed)`>) to get a full interaction at the specified block ID.
+:warning: Use with other interactions like [`fcl.getBlock()`](<#`fcl.getBlock(isSealed)`>) to get a full interaction at the specified block ID.
 
 ### Arguments
 
@@ -769,7 +765,7 @@ A builder function that returns a partial interaction to a block at a specific b
 
 | Type                                   | Description                                                                                                 |
 | -------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| [Partial Interaction](##`Interaction`) | A partial interaction to be paired with another interaction such as `fcl.getBlock()` or `fcl.getAccount()`. |
+| [Partial Interaction](#`Interaction`) | A partial interaction to be paired with another interaction such as `fcl.getBlock()` or `fcl.getAccount()`. |
 
 ### Usage
 
@@ -791,7 +787,7 @@ A builder function that returns the interaction to get a block header.
 
 | Type                                       | Description                                                  |
 | ------------------------------------------ | ------------------------------------------------------------ |
-| [BlockHeaderObject](##`BlockHeaderObject`) | The latest block header if not used with any other builders. |
+| [BlockHeaderObject](#BlockHeaderObject) | The latest block header if not used with any other builders. |
 
 ### Usage
 
@@ -815,7 +811,7 @@ A builder function that returns all instances of a particular event (by name) wi
 
 | Name              | Type                       | Description                                                      |
 | ----------------- | -------------------------- | ---------------------------------------------------------------- |
-| `eventName`       | [EventName](##`EventName`) | The name of the event.                                           |
+| `eventName`       | [EventName](#EventName) | The name of the event.                                           |
 | `fromBlockHeight` | number                     | The height of the block to start looking for events (inclusive). |
 | `toBlockHeight`   | number                     | The height of the block to stop looking for events (inclusive).  |
 
@@ -823,7 +819,7 @@ A builder function that returns all instances of a particular event (by name) wi
 
 | Type                             | Description                                    |
 | -------------------------------- | ---------------------------------------------- |
-| [[EventObject]](##`EventObject`) | An array of events that matched the eventName. |
+| [[EventObject]](#EventObject) | An array of events that matched the eventName. |
 
 ### Usage
 
@@ -853,14 +849,14 @@ A builder function that returns all instances of a particular event (by name) wi
 
 | Name        | Type                       | Description                               |
 | ----------- | -------------------------- | ----------------------------------------- |
-| `eventName` | [EventName](##`EventName`) | The name of the event.                    |
+| `eventName` | [EventName](#EventName) | The name of the event.                    |
 | `blockIds`  | number                     | The ids of the blocks to scan for events. |
 
 ### Returns after decoding
 
 | Type                             | Description                                    |
 | -------------------------------- | ---------------------------------------------- |
-| [[EventObject]](##`EventObject`) | An array of events that matched the eventName. |
+| [[EventObject]](#EventObject) | An array of events that matched the eventName. |
 
 ### Usage
 
@@ -895,7 +891,7 @@ A builder function that returns all a collection containing a list of transactio
 
 | Type                             | Description                                    |
 | -------------------------------- | ---------------------------------------------- |
-| [CollectionObject](##`CollectionObject`) | An object with the id and a list of transactions within the requested collection. |
+| [CollectionObject](#CollectionObject) | An object with the id and a list of transactions within the requested collection. |
 
 ### Usage
 
@@ -1454,6 +1450,7 @@ const authorizationFunction = async (account) => {
 
 - [Node.js Service using the service account to authorize a minter](https://github.com/onflow/kitty-items/blob/master/api/src/services/flow.ts)
 - [Detailed explanation](https://github.com/onflow/flow-js-sdk/blob/master/packages/fcl/src/wallet-provider-spec/authorization-function.md)
+
 
 ---
 
